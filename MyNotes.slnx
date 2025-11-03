@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="mynotes.client/mynotes.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="MyNotes.Server/MyNotes.Server.csproj" />
+</Solution>
