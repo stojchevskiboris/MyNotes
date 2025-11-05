@@ -1,6 +1,3 @@
 @MyNotes.Server_HostAddress = http://localhost:5124
 
-GET {{MyNotes.Server_HostAddress}}/weatherforecast/
-Accept: application/json
-
 ###

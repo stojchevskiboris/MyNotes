@@ -51,7 +51,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Data\" />
 		<Folder Include="Domain\Enums\" />
 		<Folder Include="Services\Mappers\" />
 		<Folder Include="Services\Validators\" />
