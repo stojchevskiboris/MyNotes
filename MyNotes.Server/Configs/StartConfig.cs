@@ -20,6 +20,7 @@ namespace MyNotes.Server.Configs
         {
             // --- Service Registration ---
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IJwtService, JwtService>();
 
             //services.AddHttpClient<IUserService, UserService>();
             services.AddHttpContextAccessor();
