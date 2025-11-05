@@ -1,0 +1,49 @@
+.login-wrapper {
+  height: 100vh;
+  background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+}
+
+.login-card {
+  width: 400px;
+  background: #fff;
+  border: none;
+}
+
+.login-form label {
+  font-weight: 500;
+}
+
+.divider {
+  position: relative;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background-color: #ccc;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.g_id_signin {
+  display: flex;
+  justify-content: center;
+}
+
+.alert {
+  font-size: 0.9rem;
+  border-radius: 10px;
+}
