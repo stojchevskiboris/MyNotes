@@ -1,10 +1,15 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MyNotes.Server.Common;
 using MyNotes.Server.Data.Implementations;
 using MyNotes.Server.Data.Interfaces;
 using MyNotes.Server.Services.Implementations;
 using MyNotes.Server.Services.Interfaces;
+using System.Security.Claims;
+using System.Text;
 
 namespace MyNotes.Server.Configs
 {
@@ -91,6 +96,47 @@ namespace MyNotes.Server.Configs
                         new string[] {}
                     }
                 });
+            });
+        }
+
+        public static void ConfigureAuthentication(this IServiceCollection services)
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false; // set true in PROD
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(AppParameters.AppSettings.GoogleAuth.ClientSecret)
+                    ),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = AppParameters.AppSettings.GoogleAuth.Issuer,
+                    ValidAudience = AppParameters.AppSettings.GoogleAuth.ClientId,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var email = context.Principal?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                        if (!string.IsNullOrEmpty(email))
+                        {
+                            var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+                            var user = await userService.GetByEmailAsync(email);
+
+                            context.HttpContext.Items["User"] = user;
+                        }
+                    }
+                };
             });
         }
     }

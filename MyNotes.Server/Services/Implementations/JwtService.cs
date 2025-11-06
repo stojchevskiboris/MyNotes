@@ -11,17 +11,15 @@ namespace MyNotes.Server.Services.Implementations
     public class JwtService : IJwtService
     {
         private readonly IConfiguration _config;
-        private readonly AppSettings _appSettings;
 
-        public JwtService(IConfiguration config, IOptions<AppSettings> appSettings)
+        public JwtService(IConfiguration config)
         {
             _config = config;
-            _appSettings = appSettings.Value;
         }
 
         public string GenerateToken(string email)
         {
-            var googleAuth = _appSettings.GoogleAuth;
+            var googleAuth = AppParameters.AppSettings.GoogleAuth;
             if (googleAuth == null)
             {
                 throw new InvalidOperationException("GoogleAuth settings are not configured.");

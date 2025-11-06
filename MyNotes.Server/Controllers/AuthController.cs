@@ -23,7 +23,7 @@ namespace MyNotes.Server.Controllers
         public IActionResult Login([FromBody] LoginRequest model)
         {
             // Validate credentials, e.g. from database
-            if (model.Email == "test@example.com" && model.Password == "12345")
+            if (model.Email == "1" && model.Password == "1")
             {
                 var token = _jwtService.GenerateToken(model.Email);
                 return Ok(new { token });

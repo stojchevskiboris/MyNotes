@@ -6,5 +6,6 @@ namespace MyNotes.Server.Services.Interfaces
     {
         Task CreateAsync(User user);
         Task<User> GetByEmailAsync(string email);
+        Task<UserViewModel> GetUserById(int id);
     }
 }

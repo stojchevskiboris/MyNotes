@@ -1,14 +1,19 @@
-﻿using MyNotes.Server.Domain.Models;
+﻿using MyNotes.Server.Common.Exceptions;
+using MyNotes.Server.Data.Interfaces;
+using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
+using MyNotes.Server.Services.Mappers;
 
 namespace MyNotes.Server.Services.Implementations
 {
     public class UserService : IUserService
     {
         private readonly IConfiguration _config;
+        private readonly IUserRepository _userRepository;
 
-        public UserService()
+        public UserService(IUserRepository userRepository)
         {
+            _userRepository = userRepository;
         }
 
         public Task CreateAsync(User user)
@@ -28,6 +33,25 @@ namespace MyNotes.Server.Services.Implementations
                 CreatedAt = DateTime.UtcNow
             };
             return Task.FromResult(user);
+        }
+
+        public async Task<UserViewModel> GetUserById(int id)
+        {
+            var user = await GetUserDomainById(id);
+
+            return user.MapToViewModel();
+        }
+
+
+        private async Task<User> GetUserDomainById(int id)
+        {
+            var user = _userRepository.Get(id);
+            if (user == null)
+            {
+                throw new CustomException($"No user found with id: {id}");
+            }
+
+            return user;
         }
     }
 
