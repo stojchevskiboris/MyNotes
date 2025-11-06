@@ -8,7 +8,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- Configuration Section ---
-AppParameters.ConnectionString = builder.Configuration.GetConnectionString("devDb") ?? "";
+AppParameters.ConnectionString = builder.Configuration.GetConnectionString("devDb2") ?? "";
 builder.Services.AddDbContext<MyNotesDbContext>(options =>
     options.UseSqlServer(AppParameters.ConnectionString));
 
