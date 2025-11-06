@@ -7,11 +7,15 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { provideToastr, ToastrModule } from 'ngx-toastr';
+import { RegisterComponent } from './components/register/register.component';
+import { NotesComponent } from './components/notes/notes.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
+    RegisterComponent,
+    NotesComponent
   ],
   imports: [
     BrowserModule,

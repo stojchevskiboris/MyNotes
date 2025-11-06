@@ -30,6 +30,23 @@ export class AuthService {
       );
   }
 
+  // Register new local user
+  register(username: string, email: string, password: string): Observable<any> {
+    return this.dataService.post<any>(`/auth/register`, { username, email, password })
+      .pipe(
+        tap({
+          next: (response) => {
+            this.toastr.success('Registration successful', 'Success');
+            return response;
+          },
+          error: (error) => {
+            this.toastr.error(error?.error || 'Registration failed', 'Error');
+            throw error;
+          }
+        })
+      );
+  }
+
   // 🌐 Google login
   googleLogin(idToken: string): Observable<any> {
     return this.dataService.post<any>(`/auth/google`, { idToken })

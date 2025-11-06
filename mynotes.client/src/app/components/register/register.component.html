@@ -1,0 +1,39 @@
+<div class="login-wrapper d-flex align-items-center justify-content-center">
+  <div class="login-card card shadow-lg p-4 rounded-4">
+    <h2 class="text-center mb-4">Create account</h2>
+
+    <form (ngSubmit)="register()" class="login-form">
+      <div class="form-group mb-3">
+        <label>Username</label>
+        <input [(ngModel)]="username" name="username" type="text" required
+               class="form-control form-control-lg" placeholder="Enter your username" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Email</label>
+        <input [(ngModel)]="email" name="email" type="email" required
+               class="form-control form-control-lg" placeholder="Enter your email" />
+      </div>
+
+      <div class="form-group mb-4">
+        <label>Password</label>
+        <input [(ngModel)]="password" name="password" type="password" required
+               class="form-control form-control-lg" placeholder="Choose a password" />
+      </div>
+
+      <button [disabled]="loading" type="submit"
+              class="btn btn-primary btn-lg w-100 mb-3">
+        {{ loading ? 'Creating account...' : 'Register' }}
+      </button>
+
+      <div *ngIf="errorMessage" class="alert alert-danger mt-3 text-center">
+        {{ errorMessage }}
+      </div>
+    </form>
+
+    <p class="text-center mt-4 text-muted small">
+      Already have an account?
+      <a routerLink="/login" class="link-primary">Sign in</a>
+    </p>
+  </div>
+</div>
