@@ -23,5 +23,21 @@ namespace MyNotes.Server.Services.Mappers
 
             return model;
         }
+
+        public static UserJwtModel MapToJwtModel(this User user)
+        {
+            if (user == null)
+                return null;
+
+            var model = new UserJwtModel
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                ProfileImageUrl = user.ProfileImageUrl,
+            };
+
+            return model;
+        }
     }
 }
