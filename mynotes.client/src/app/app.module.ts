@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -9,6 +9,7 @@ import { LoginComponent } from './components/login/login.component';
 import { provideToastr, ToastrModule } from 'ngx-toastr';
 import { RegisterComponent } from './components/register/register.component';
 import { NotesComponent } from './components/notes/notes.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,11 @@ import { NotesComponent } from './components/notes/notes.component';
     ToastrModule.forRoot(),
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
     provideToastr({
       tapToDismiss: true,
       closeButton: true,

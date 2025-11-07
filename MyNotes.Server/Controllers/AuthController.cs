@@ -3,6 +3,7 @@ using MyNotes.Server.Common.Helpers;
 using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
 using MyNotes.Server.Services.ViewModels;
+using Newtonsoft.Json.Linq;
 
 namespace MyNotes.Server.Controllers
 {
@@ -19,7 +20,7 @@ namespace MyNotes.Server.Controllers
             _jwtService = jwtService;
         }
 
-        [HttpPost("google")]
+        [HttpPost("GoogleLogin")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
         {
             var payload = await _jwtService.ValidateGoogleRequest(request);
@@ -31,15 +32,20 @@ namespace MyNotes.Server.Controllers
             var user = await _userService.CreateOrFindUser(payload);
             var jwtToken = _jwtService.GenerateToken(user.Email, user.Username, user.ProfileImageUrl);
 
-            return Ok(new { token = jwtToken });
+            return Ok(new { 
+                token = jwtToken,
+                user = user,
+                userId = user.Id
+            });
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest model)
         {
+            UserViewModel user;
             try
             {
-                await _userService.Login(model);
+                user = await _userService.Login(model);
             }
             catch (ArgumentException argEx)
             {
@@ -50,16 +56,22 @@ namespace MyNotes.Server.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }            
 
-            var token = _jwtService.GenerateToken(model.Email);
-            return Ok(new { token });
+            var jwtToken = _jwtService.GenerateToken(model.Email);
+
+            return Ok(new { 
+                token = jwtToken,
+                user = user,
+                userId = user.Id
+            });
         }
 
-        [HttpPost("register")]
+        [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest model)
         {
+            UserViewModel user;
             try
             {
-                await _userService.Register(model);
+                user = await _userService.Register(model);
             }
             catch (ArgumentException argEx)
             {
@@ -70,8 +82,14 @@ namespace MyNotes.Server.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
 
-            var token = _jwtService.GenerateToken(model.Email);
-            return Ok(new { token });
+            var jwtToken = _jwtService.GenerateToken(model.Email);
+
+            return Ok(new
+            {
+                token = jwtToken,
+                user = user,
+                userId = user.Id
+            });
         }
     }    
 }

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 import { DataService } from './data.service';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, tap } from 'rxjs';
@@ -9,21 +8,28 @@ import { Observable, tap } from 'rxjs';
 })
 export class AuthService {
 
+  private loginEndpoint = `/Auth/Login`;
+  private registerEndpoint = `/Auth/Register`;
+  private googleLoginEndpoint = `/Auth/GoogleLogin`;
+  
+  currentUser: string = '';
+  token: string = '';
+  userId: string = '';
+
   constructor(
     private dataService: DataService,
     private toastr: ToastrService
   ) {}
 
   login(email: string, password: string): Observable<any> {
-    return this.dataService.post<any>(`/auth/login`, { email, password })
+    return this.dataService.post<any>(this.loginEndpoint, { email, password })
       .pipe(
         tap({
           next: (response) => {
-            this.toastr.success('Login successful', 'Success');
+            this.storeUserCredentials(response);
             return response;
           },
           error: (error) => {
-            this.toastr.error('Invalid credentials', 'Login Failed');
             throw error;
           }
         })
@@ -32,28 +38,28 @@ export class AuthService {
 
   // Register new local user
   register(username: string, email: string, password: string): Observable<any> {
-    return this.dataService.post<any>(`/auth/register`, { username, email, password })
+    return this.dataService.post<any>(this.registerEndpoint, { username, email, password })
       .pipe(
         tap({
           next: (response) => {
-            this.toastr.success('Registration successful', 'Success');
+            this.storeUserCredentials(response);
             return response;
           },
           error: (error) => {
-            this.toastr.error(error?.error || 'Registration failed', 'Error');
             throw error;
           }
         })
       );
   }
 
-  // 🌐 Google login
+  // Google login
   googleLogin(idToken: string): Observable<any> {
-    return this.dataService.post<any>(`/auth/google`, { idToken })
+    return this.dataService.post<any>(this.googleLoginEndpoint, { idToken })
       .pipe(
         tap({
-          next: (response) => {
-            this.toastr.success('Google login successful', 'Success');
+          next: (response) => {            
+            this.storeUserCredentials(response);
+            this.toastr.info('Google login successful');
             return response;
           },
           error: (error) => {
@@ -64,14 +70,34 @@ export class AuthService {
       );
   }
 
-  // 🧭 Helper: check if user is logged in
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }
 
-  // 🚪 Logout user
+  getUserId(): number {
+    return isNaN(Number(localStorage.getItem('userId'))) ? 0 : Number(localStorage.getItem('userId'));
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('userId');
+    this.currentUser = '';
+    this.token = '';
+    this.userId = '';
     this.toastr.info('Logged out successfully');
+  }
+  
+  storeUserCredentials(response: any) {
+    this.token = response.token;
+    this.currentUser = response.user;
+    this.userId = response.userId;
+    localStorage.setItem('token', this.token);
+    localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+    localStorage.setItem('userId', this.userId);
   }
 }
