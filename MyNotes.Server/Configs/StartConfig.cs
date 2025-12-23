@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,6 +16,16 @@ namespace MyNotes.Server.Configs
 {
     public static class StartConfig
     {
+        public static void ConfigureAppSettings(this IServiceCollection services, AppSettingsModel? config)
+        {
+            if (config != null)
+            {
+                AppParameters.AppSettings.AesSecretKey = config.AesSecretKey;
+                AppParameters.AppSettings.GoogleAuth = config.GoogleAuth;
+                AppParameters.AppSettings.Jwt = config.Jwt;
+            }
+        }
+
         public static void ConfigureRepositories(this IServiceCollection services)
         {
             // --- Repository Registration ---
@@ -101,43 +112,46 @@ namespace MyNotes.Server.Configs
 
         public static void ConfigureAuthentication(this IServiceCollection services)
         {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false; // set true in PROD
-                options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters
+            services.AddAuthentication()
+                .AddJwtBearer("Google", options =>
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(AppParameters.AppSettings.GoogleAuth.ClientSecret)
-                    ),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = AppParameters.AppSettings.GoogleAuth.Issuer,
-                    ValidAudience = AppParameters.AppSettings.GoogleAuth.ClientId,
-                    ClockSkew = TimeSpan.Zero
-                };
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnTokenValidated = async context =>
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        var email = context.Principal?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-                        if (!string.IsNullOrEmpty(email))
-                        {
-                            var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                            var user = await userService.GetByEmailAsync(email);
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(AppParameters.AppSettings.GoogleAuth.ClientSecret)
+                        ),
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidIssuer = AppParameters.AppSettings.GoogleAuth.Issuer,
+                        ValidAudience = AppParameters.AppSettings.GoogleAuth.ClientId,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                })
+                .AddJwtBearer("Local", options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(AppParameters.AppSettings.Jwt.Secret)
+                        ),
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidIssuer = AppParameters.AppSettings.Jwt.Issuer,
+                        ValidAudience = AppParameters.AppSettings.Jwt.Audience,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+        }
 
-                            context.HttpContext.Items["User"] = user;
-                        }
-                    }
-                };
-            });
+        public static void ConfigureAuthorization(this IServiceCollection services)
+        {
+            services.AddAuthorizationBuilder()
+                .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                .AddAuthenticationSchemes("Local", "Google")
+                .RequireAuthenticatedUser()
+                .Build());
         }
     }
 }

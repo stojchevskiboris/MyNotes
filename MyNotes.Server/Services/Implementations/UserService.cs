@@ -7,6 +7,7 @@ using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
 using MyNotes.Server.Services.Mappers;
 using MyNotes.Server.Services.ViewModels;
+using System.Security.Authentication;
 using static Google.Apis.Auth.GoogleJsonWebSignature;
 
 namespace MyNotes.Server.Services.Implementations
@@ -35,7 +36,7 @@ namespace MyNotes.Server.Services.Implementations
                 user = new User
                 {
                     Email = payload.Email,
-                    Username = payload.Name ?? payload.Email,
+                    Name = payload.Name,
                     PasswordHash = null, // not needed for Google users
                     AuthProvider = AppParameters.AppSettings.GoogleAuth.AuthUri,
                     ProviderId = payload.Subject,
@@ -81,28 +82,38 @@ namespace MyNotes.Server.Services.Implementations
         {
             if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
             {
-                throw new ArgumentException("Email and password are required.");
+                throw new AuthenticationException("Email and password are required.");
             }
 
             var user = await _userRepository.GetByEmailAsync(model.Email);
             if (user == null)
-                throw new ArgumentException("Invalid email or password.");
+                throw new AuthenticationException("Invalid email or password.");
 
             if (user.IsGoogleUser)
-                throw new ArgumentException("This account uses Google sign-in. Use the Google sign-in button.");
+                throw new AuthenticationException("This account uses Google sign-in. Use the Google sign-in button.");
 
             var hashed = PasswordHelper.HashPassword(model.Password);
             if (!string.Equals(hashed, user.PasswordHash, StringComparison.Ordinal))
-                throw new ArgumentException("Invalid email or password.");
+                throw new AuthenticationException("Invalid email or password.");
 
             return user.MapToViewModel();
         }
 
         public async Task<UserViewModel> Register(RegisterRequest model)
         {
-            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password) || string.IsNullOrWhiteSpace(model.Username))
+            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password) || string.IsNullOrWhiteSpace(model.Name))
             {
-                throw new ArgumentException("Username, email and password are required.");
+                switch (true)
+                {
+                    case var _ when string.IsNullOrWhiteSpace(model.Name):
+                        throw new ArgumentException("Username is required.");
+                    case var _ when string.IsNullOrWhiteSpace(model.Email):
+                        throw new ArgumentException("Email is required.");
+                    case var _ when string.IsNullOrWhiteSpace(model.Password):
+                        throw new ArgumentException("Password is required.");
+                    case var _ when string.Compare(model.Password, model.ConfirmPassword) != 0:
+                        throw new ArgumentException("Password and Confirm Password do not match.");
+                }
             }
 
             var existing = await _userRepository.GetByEmailAsync(model.Email);
@@ -119,7 +130,7 @@ namespace MyNotes.Server.Services.Implementations
             var user = new User
             {
                 Email = model.Email,
-                Username = model.Username,
+                Name = model.Name,
                 AuthProvider = "Local",
                 PasswordHash = PasswordHelper.HashPassword(model.Password),
                 CreatedAt = DateTime.UtcNow

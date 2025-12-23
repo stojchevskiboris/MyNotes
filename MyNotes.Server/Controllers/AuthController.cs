@@ -4,6 +4,7 @@ using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
 using MyNotes.Server.Services.ViewModels;
 using Newtonsoft.Json.Linq;
+using System.Security.Authentication;
 
 namespace MyNotes.Server.Controllers
 {
@@ -73,9 +74,9 @@ namespace MyNotes.Server.Controllers
             {
                 user = await _userService.Register(model);
             }
-            catch (ArgumentException argEx)
+            catch (ArgumentException authEx)
             {
-                return Unauthorized(argEx.Message);
+                return BadRequest(authEx.Message);
             }
             catch (Exception ex)
             {

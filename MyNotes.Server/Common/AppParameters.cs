@@ -7,14 +7,17 @@
         public static class AppSettings
         {
             public static string AesSecretKey { get; set; } = string.Empty;
-            public static GoogleAuth GoogleAuth { get; set; } = new GoogleAuth();
+            public static GoogleAuth GoogleAuth { get; set; } = null!;
+            public static JwtSettings Jwt { get; set; } = null!;
         }
     }
 
     public class AppSettingsModel
     {
         public string AesSecretKey { get; set; } = string.Empty;
-        public GoogleAuth GoogleAuth { get; set; } = new GoogleAuth();
+        public GoogleAuth GoogleAuth { get; set; } = null!;
+        public JwtSettings Jwt { get; set; } = null!;
+
     }
 
     public class GoogleAuth
@@ -26,5 +29,13 @@
         public string TokenUri { get; set; } = null!;
         public string AuthProviderCertUrl { get; set; } = null!;
         public string Issuer { get; set; } = null!;
+    }
+
+    public class JwtSettings
+    {
+        public string Secret { get; set; } = null!;
+        public string Issuer { get; set; } = null!;
+        public string Audience { get; set; } = null!;
+        public int ExpireMinutes { get; set; } = 0;
     }
 }

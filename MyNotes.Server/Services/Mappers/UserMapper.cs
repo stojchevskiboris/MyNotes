@@ -12,7 +12,7 @@ namespace MyNotes.Server.Services.Mappers
             var model = new UserViewModel
             {
                 Id = user.Id,
-                Username = user.Username,
+                Name = user.Name,
                 Email = user.Email,
                 AuthProvider = user.AuthProvider,
                 ProviderId = user.ProviderId,
@@ -32,7 +32,7 @@ namespace MyNotes.Server.Services.Mappers
             var model = new UserJwtModel
             {
                 Id = user.Id,
-                Username = user.Username,
+                Username = user.Name,
                 Email = user.Email,
                 ProfileImageUrl = user.ProfileImageUrl,
             };

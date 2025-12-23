@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { HttpStatusCode } from '@angular/common/http';
+import { AppMessages } from '../../models/shared/app-messages';
 
 @Component({
   selector: 'app-register',
@@ -8,9 +10,13 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './register.component.css'
 })
 export class RegisterComponent {
-  username = '';
-  email = '';
-  password = '';
+  
+  model = {
+    name: '',
+    email: '',
+    password: ''
+  };
+
   loading = false;
   errorMessage = '';
 
@@ -19,14 +25,14 @@ export class RegisterComponent {
   register() {
     this.loading = true;
     this.errorMessage = '';
-    this.authService.register(this.username, this.email, this.password).subscribe({
+    this.authService.register(this.model).subscribe({
       next: (res) => {
         localStorage.setItem('token', res.token);
-        this.router.navigate(['/notes']); // adjust if you have a different default route
+        this.router.navigate(['/notes']);
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err?.error || 'Registration failed.';
+        this.errorMessage = err?.status == HttpStatusCode.BadRequest ? err.error : AppMessages.UnexpectedError;
       }
     });
   }

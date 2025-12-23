@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using MyNotes.Server.Common;
 using MyNotes.Server.Configs;
 using MyNotes.Server.Data;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,9 @@ builder.Services.AddDbContext<MyNotesDbContext>(options =>
 
 var config = builder.Configuration.GetSection("AppSettings").Get<AppSettingsModel>()
     ?? throw new Exception("AppSettings is null");
-AppParameters.AppSettings.AesSecretKey = config.AesSecretKey;
-AppParameters.AppSettings.GoogleAuth = config.GoogleAuth;
+
+// --- Configure Application Settings
+builder.Services.ConfigureAppSettings(config);
 
 // --- Repository Registration ---
 builder.Services.ConfigureRepositories();
@@ -34,6 +36,9 @@ builder.Services.ConfigureSwaggerAuth();
 
 // --- Authentication Configuration ---
 builder.Services.ConfigureAuthentication();
+
+// --- Authorization Configuration ---
+builder.Services.ConfigureAuthorization();
 
 // --- Controllers Registration ---
 builder.Services.AddControllers();
@@ -90,7 +95,6 @@ app.UseSerilogRequestLogging();
 app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
-//app.UseMiddleware<JwtMiddleware>();
 app.MapControllers();
 app.MapFallbackToFile("/index.html");
 

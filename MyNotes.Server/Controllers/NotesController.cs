@@ -53,7 +53,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 101,
                 AuthorUsername = "boris",
                 IsPinned = true,
-                ColorTag = "#FFD700",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "personal", "shopping" },
                 IsArchived = false
             },
@@ -66,7 +66,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 101,
                 AuthorUsername = "boris",
                 IsPinned = false,
-                ColorTag = "#ADD8E6",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "work", "angular" },
                 IsArchived = false
             },
@@ -79,7 +79,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 102,
                 AuthorUsername = "john",
                 IsPinned = false,
-                ColorTag = "#90EE90",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "meeting", "team" },
                 IsArchived = false
             },
@@ -92,7 +92,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 101,
                 AuthorUsername = "boris",
                 IsPinned = true,
-                ColorTag = "#FFB6C1",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "personal", "travel" },
                 IsArchived = false
             },
@@ -105,7 +105,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 101,
                 AuthorUsername = "boris",
                 IsPinned = true,
-                ColorTag = "#FFA07A",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "project", "ideas" },
                 IsArchived = false
             },
@@ -118,7 +118,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 103,
                 AuthorUsername = "andrea",
                 IsPinned = false,
-                ColorTag = "#C0C0C0",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "fitness" },
                 IsArchived = false
             },
@@ -131,7 +131,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 102,
                 AuthorUsername = "john",
                 IsPinned = false,
-                ColorTag = "#6A5ACD",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "learning", "backend" },
                 IsArchived = false
             },
@@ -144,7 +144,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 101,
                 AuthorUsername = "boris",
                 IsPinned = false,
-                ColorTag = "#F0E68C",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "test", "mobile" },
                 IsArchived = false
             },
@@ -157,7 +157,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 103,
                 AuthorUsername = "andrea",
                 IsPinned = true,
-                ColorTag = "#AFEEEE",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "learning", "books" },
                 IsArchived = false
             },
@@ -170,7 +170,7 @@ namespace MyNotes.Server.Controllers
                 AuthorId = 101,
                 AuthorUsername = "boris",
                 IsPinned = false,
-                ColorTag = "#E6E6FA",
+                ColorTag = "#FFFFFF",
                 Tags = new[] { "old" },
                 IsArchived = true
             }

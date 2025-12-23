@@ -37,8 +37,8 @@ export class AuthService {
   }
 
   // Register new local user
-  register(username: string, email: string, password: string): Observable<any> {
-    return this.dataService.post<any>(this.registerEndpoint, { username, email, password })
+  register(model): Observable<any> {
+    return this.dataService.post<any>(this.registerEndpoint, model)
       .pipe(
         tap({
           next: (response) => {
@@ -59,11 +59,9 @@ export class AuthService {
         tap({
           next: (response) => {            
             this.storeUserCredentials(response);
-            this.toastr.info('Google login successful');
             return response;
           },
           error: (error) => {
-            this.toastr.error('Google login failed', 'Error');
             throw error;
           }
         })
