@@ -51,7 +51,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-10),
                 ModifiedAt = DateTime.Now.AddDays(-8),
                 AuthorId = 101,
-                AuthorUsername = "boris",
+                AuthorName = "boris",
                 IsPinned = true,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "personal", "shopping" },
@@ -64,7 +64,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-7),
                 ModifiedAt = DateTime.Now.AddDays(-6),
                 AuthorId = 101,
-                AuthorUsername = "boris",
+                AuthorName = "boris",
                 IsPinned = false,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "work", "angular" },
@@ -77,7 +77,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-5),
                 ModifiedAt = DateTime.Now.AddDays(-4),
                 AuthorId = 102,
-                AuthorUsername = "john",
+                AuthorName = "john",
                 IsPinned = false,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "meeting", "team" },
@@ -90,7 +90,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-4),
                 ModifiedAt = DateTime.Now.AddDays(-4),
                 AuthorId = 101,
-                AuthorUsername = "boris",
+                AuthorName = "boris",
                 IsPinned = true,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "personal", "travel" },
@@ -103,7 +103,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-3),
                 ModifiedAt = DateTime.Now.AddDays(-3),
                 AuthorId = 101,
-                AuthorUsername = "boris",
+                AuthorName = "boris",
                 IsPinned = true,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "project", "ideas" },
@@ -116,7 +116,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-3),
                 ModifiedAt = DateTime.Now.AddDays(-2),
                 AuthorId = 103,
-                AuthorUsername = "andrea",
+                AuthorName = "andrea",
                 IsPinned = false,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "fitness" },
@@ -129,7 +129,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-1),
                 ModifiedAt = DateTime.Now.AddHours(-12),
                 AuthorId = 102,
-                AuthorUsername = "john",
+                AuthorName = "john",
                 IsPinned = false,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "learning", "backend" },
@@ -142,7 +142,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now,
                 ModifiedAt = DateTime.Now,
                 AuthorId = 101,
-                AuthorUsername = "boris",
+                AuthorName = "boris",
                 IsPinned = false,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "test", "mobile" },
@@ -155,7 +155,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-6),
                 ModifiedAt = DateTime.Now.AddDays(-5),
                 AuthorId = 103,
-                AuthorUsername = "andrea",
+                AuthorName = "andrea",
                 IsPinned = true,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "learning", "books" },
@@ -168,7 +168,7 @@ namespace MyNotes.Server.Controllers
                 CreatedAt = DateTime.Now.AddDays(-20),
                 ModifiedAt = DateTime.Now.AddDays(-18),
                 AuthorId = 101,
-                AuthorUsername = "boris",
+                AuthorName = "boris",
                 IsPinned = false,
                 ColorTag = "#FFFFFF",
                 Tags = new[] { "old" },
@@ -184,7 +184,7 @@ namespace MyNotes.Server.Controllers
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }
         public int AuthorId { get; set; }
-        public string AuthorUsername { get; set; } = "";
+        public string AuthorName { get; set; } = "";
         public bool IsPinned { get; set; }
         public string ColorTag { get; set; } = "";
         public string[] Tags { get; set; } = [];

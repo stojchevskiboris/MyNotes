@@ -52,7 +52,7 @@
 
 	<ItemGroup>
 		<Folder Include="Domain\Enums\" />
-		<Folder Include="Services\Validators\" />
+		<Folder Include="Services\ViewModels\Enums\" />
 	</ItemGroup>
 	
 </Project>

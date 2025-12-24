@@ -1,8 +1,10 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { HttpStatusCode } from '@angular/common/http';
+import { AppMessages } from '../../models/shared/app-messages';
 
-declare const google: any; // required to access Google script
+declare const google: any;
 
 @Component({
   selector: 'app-login',
@@ -58,9 +60,9 @@ export class LoginComponent implements AfterViewInit {
         localStorage.setItem('token', res.token);
         this.router.navigate(['/notes']);
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.errorMessage = 'Invalid email or password.';
+        this.errorMessage = err?.status == HttpStatusCode.BadRequest ? err.error : AppMessages.UnexpectedError;
       }
     });
   }

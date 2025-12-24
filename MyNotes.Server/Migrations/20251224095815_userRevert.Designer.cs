@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyNotes.Server.Data;
 
@@ -11,9 +12,11 @@ using MyNotes.Server.Data;
 namespace MyNotes.Server.Migrations
 {
     [DbContext(typeof(MyNotesDbContext))]
-    partial class MyNotesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251224095815_userRevert")]
+    partial class userRevert
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyNotes.Server.Common.Helpers;
 using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
 using MyNotes.Server.Services.ViewModels;
-using Newtonsoft.Json.Linq;
-using System.Security.Authentication;
 
 namespace MyNotes.Server.Controllers
 {
@@ -30,14 +27,9 @@ namespace MyNotes.Server.Controllers
                 return Unauthorized();
             }
 
-            var user = await _userService.CreateOrFindUser(payload);
-            var jwtToken = _jwtService.GenerateToken(user.Email, user.Username, user.ProfileImageUrl);
-
-            return Ok(new { 
-                token = jwtToken,
-                user = user,
-                userId = user.Id
-            });
+            var user = await _userService.CreateOrFindGoogleUser(payload);
+            var result = _jwtService.GenerateTokenModel(user);
+            return Ok(result);
         }
 
         [HttpPost("Login")]
@@ -50,20 +42,15 @@ namespace MyNotes.Server.Controllers
             }
             catch (ArgumentException argEx)
             {
-                return Unauthorized(argEx.Message);
+                return BadRequest(argEx.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while processing your request.");
+                return StatusCode(500, ApplicationMessages.UnexpectedError);
             }            
 
-            var jwtToken = _jwtService.GenerateToken(model.Email);
-
-            return Ok(new { 
-                token = jwtToken,
-                user = user,
-                userId = user.Id
-            });
+            var result = _jwtService.GenerateTokenModel(user);
+            return Ok(result);
         }
 
         [HttpPost("Register")]
@@ -83,14 +70,8 @@ namespace MyNotes.Server.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
 
-            var jwtToken = _jwtService.GenerateToken(model.Email);
-
-            return Ok(new
-            {
-                token = jwtToken,
-                user = user,
-                userId = user.Id
-            });
+            var result = _jwtService.GenerateTokenModel(user);
+            return Ok(result);
         }
     }    
 }

@@ -1,10 +1,8 @@
-﻿using Google.Apis.Auth;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using MyNotes.Server.Common;
-using MyNotes.Server.Controllers;
 using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
+using MyNotes.Server.Services.Mappers;
 using MyNotes.Server.Services.ViewModels;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -21,12 +19,13 @@ namespace MyNotes.Server.Services.Implementations
             _config = config;
         }
 
-        public string GenerateToken(string email, string username, string profileImageUrl)
+        public UserJwtModel GenerateTokenModel(UserViewModel userModel)
         {
             var googleAuth = AppParameters.AppSettings.GoogleAuth;
-            if (googleAuth == null)
+            var localAuth = AppParameters.AppSettings.LocalAuth;
+            if (googleAuth == null || localAuth == null)
             {
-                throw new InvalidOperationException("GoogleAuth settings are not configured.");
+                throw new InvalidOperationException("Auth settings are not configured.");
             }
 
             var key = new SymmetricSecurityKey(
@@ -37,20 +36,23 @@ namespace MyNotes.Server.Services.Implementations
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, email),
-                new Claim("username", username ?? ""),
-                new Claim("avatar", profileImageUrl ?? "")
+                new Claim(ClaimTypes.Email, userModel.Email),
+                new Claim("name", userModel.Name ?? ""),
+                new Claim("avatar", userModel.ProfileImageUrl ?? "")
             };
 
             var token = new JwtSecurityToken(
-                issuer: googleAuth.Issuer,
-                audience: googleAuth.ClientId,
+                issuer: userModel.IsGoogleUser ? googleAuth.Issuer : localAuth.Issuer,
+                audience: userModel.IsGoogleUser ? googleAuth.ClientId : localAuth.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var jwtSerializedToken = new JwtSecurityTokenHandler().WriteToken(token);
+            var resultModel = userModel.MapToUserJwtModel(jwtSerializedToken);
+
+            return resultModel;
         }
 
         public async Task<Payload> ValidateGoogleRequest(GoogleLoginRequest request)

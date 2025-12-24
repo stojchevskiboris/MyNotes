@@ -2,11 +2,8 @@
 {
     public class UserJwtModel
     {
-        public int Id { get; set; }
-
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-
-        public string ProfileImageUrl { get; set; } = string.Empty;
+        public int userId { get; set; } = 0;
+        public string token { get; set; } = string.Empty;
+        public UserViewModel? user { get; set; } = null;
     }
 }

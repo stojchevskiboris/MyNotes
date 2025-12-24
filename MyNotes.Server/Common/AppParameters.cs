@@ -8,7 +8,7 @@
         {
             public static string AesSecretKey { get; set; } = string.Empty;
             public static GoogleAuth GoogleAuth { get; set; } = null!;
-            public static JwtSettings Jwt { get; set; } = null!;
+            public static LocalAuth LocalAuth { get; set; } = null!;
         }
     }
 
@@ -16,7 +16,7 @@
     {
         public string AesSecretKey { get; set; } = string.Empty;
         public GoogleAuth GoogleAuth { get; set; } = null!;
-        public JwtSettings Jwt { get; set; } = null!;
+        public LocalAuth LocalAuth { get; set; } = null!;
 
     }
 
@@ -31,7 +31,7 @@
         public string Issuer { get; set; } = null!;
     }
 
-    public class JwtSettings
+    public class LocalAuth
     {
         public string Secret { get; set; } = null!;
         public string Issuer { get; set; } = null!;

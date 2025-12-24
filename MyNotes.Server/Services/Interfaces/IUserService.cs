@@ -6,8 +6,7 @@ namespace MyNotes.Server.Services.Interfaces
 {
     public interface IUserService
     {
-        Task CreateAsync(User user);
-        Task<UserJwtModel> CreateOrFindUser(Payload payload);
+        Task<UserViewModel> CreateOrFindGoogleUser(Payload payload);
         Task<UserViewModel> GetByEmailAsync(string email);
         Task<UserViewModel> GetUserById(int id);
         Task<UserViewModel> Login(LoginRequest model);

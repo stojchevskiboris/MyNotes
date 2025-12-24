@@ -18,26 +18,21 @@ namespace MyNotes.Server.Services.Mappers
                 ProviderId = user.ProviderId,
                 ProfileImageUrl = user.ProfileImageUrl,
                 CreatedAt = user.CreatedAt,
-                LastLoginAt = user.LastLoginAt
+                LastLoginAt = user.LastLoginAt,
+                IsGoogleUser = user.IsGoogleUser,
             };
 
             return model;
         }
 
-        public static UserJwtModel MapToJwtModel(this User user)
+        public static UserJwtModel MapToUserJwtModel(this UserViewModel user, string jwtToken)
         {
-            if (user == null)
-                return null;
-
-            var model = new UserJwtModel
+            return new UserJwtModel
             {
-                Id = user.Id,
-                Username = user.Name,
-                Email = user.Email,
-                ProfileImageUrl = user.ProfileImageUrl,
+                user = user,
+                token = jwtToken,
+                userId = user.Id,
             };
-
-            return model;
         }
     }
 }

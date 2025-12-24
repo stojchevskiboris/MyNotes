@@ -4,24 +4,17 @@
     {
         public int Id { get; set; }
 
-        // Basic Identity
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
 
-        // Authentication
-        public string? PasswordHash { get; set; }     // null for OAuth users
-        public string? AuthProvider { get; set; }     // e.g. "Local", "Google"
-        public string? ProviderId { get; set; }       // Google user ID (sub)
-        public string? ProfileImageUrl { get; set; }  // Google avatar or custom
+        public string? PasswordHash { get; set; }
+        public string? AuthProvider { get; set; }
+        public string? ProviderId { get; set; }
+        public string? ProfileImageUrl { get; set; }
 
-        // Metadata
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
 
-        // Navigation Properties
-        //public ICollection<Note> Notes { get; set; } = new List<Note>();
-
-        // Helpers
-        public bool IsGoogleUser => AuthProvider?.Equals("Google", StringComparison.OrdinalIgnoreCase) == true;
+        public bool IsGoogleUser { get; set; } = false;
     }
 }

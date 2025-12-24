@@ -22,7 +22,7 @@ namespace MyNotes.Server.Configs
             {
                 AppParameters.AppSettings.AesSecretKey = config.AesSecretKey;
                 AppParameters.AppSettings.GoogleAuth = config.GoogleAuth;
-                AppParameters.AppSettings.Jwt = config.Jwt;
+                AppParameters.AppSettings.LocalAuth = config.LocalAuth;
             }
         }
 
@@ -134,12 +134,12 @@ namespace MyNotes.Server.Configs
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(AppParameters.AppSettings.Jwt.Secret)
+                            Encoding.UTF8.GetBytes(AppParameters.AppSettings.LocalAuth.Secret)
                         ),
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidIssuer = AppParameters.AppSettings.Jwt.Issuer,
-                        ValidAudience = AppParameters.AppSettings.Jwt.Audience,
+                        ValidIssuer = AppParameters.AppSettings.LocalAuth.Issuer,
+                        ValidAudience = AppParameters.AppSettings.LocalAuth.Audience,
                         ClockSkew = TimeSpan.Zero
                     };
                 });

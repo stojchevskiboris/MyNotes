@@ -1,5 +1,4 @@
-﻿using Google.Apis.Auth;
-using MyNotes.Server.Common;
+﻿using MyNotes.Server.Common;
 using MyNotes.Server.Common.Exceptions;
 using MyNotes.Server.Common.Helpers;
 using MyNotes.Server.Data.Interfaces;
@@ -7,7 +6,6 @@ using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
 using MyNotes.Server.Services.Mappers;
 using MyNotes.Server.Services.ViewModels;
-using System.Security.Authentication;
 using static Google.Apis.Auth.GoogleJsonWebSignature;
 
 namespace MyNotes.Server.Services.Implementations
@@ -21,15 +19,8 @@ namespace MyNotes.Server.Services.Implementations
             _userRepository = userRepository;
         }
 
-        public Task CreateAsync(User user)
+        public async Task<UserViewModel> CreateOrFindGoogleUser(Payload payload)
         {
-            // Dummy implementation for demonstration purposes
-            return Task.CompletedTask;
-        }
-
-        public async Task<UserJwtModel> CreateOrFindUser(Payload payload)
-        {
-            // Find or create user
             var user = await _userRepository.GetByEmailAsync(payload.Email);
             if (user == null)
             {
@@ -37,12 +28,13 @@ namespace MyNotes.Server.Services.Implementations
                 {
                     Email = payload.Email,
                     Name = payload.Name,
-                    PasswordHash = null, // not needed for Google users
+                    PasswordHash = null,
                     AuthProvider = AppParameters.AppSettings.GoogleAuth.AuthUri,
                     ProviderId = payload.Subject,
                     ProfileImageUrl = payload.Picture,
                     CreatedAt = DateTime.UtcNow,
-                    LastLoginAt = DateTime.UtcNow
+                    LastLoginAt = DateTime.UtcNow,
+                    IsGoogleUser = true,
                 };
 
                 _userRepository.Create(user);
@@ -57,7 +49,7 @@ namespace MyNotes.Server.Services.Implementations
                 _userRepository.Update(user);
             }
 
-            return user.MapToJwtModel();
+            return user.MapToViewModel();
         }
 
         public async Task<UserViewModel> GetByEmailAsync(string email)
@@ -82,19 +74,22 @@ namespace MyNotes.Server.Services.Implementations
         {
             if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
             {
-                throw new AuthenticationException("Email and password are required.");
+                throw new ArgumentException("Email and password are required.");
             }
 
             var user = await _userRepository.GetByEmailAsync(model.Email);
             if (user == null)
-                throw new AuthenticationException("Invalid email or password.");
+                throw new ArgumentException("Invalid email or password.");
 
             if (user.IsGoogleUser)
-                throw new AuthenticationException("This account uses Google sign-in. Use the Google sign-in button.");
+                throw new ArgumentException("This account uses Google sign-in. Use the Google sign-in button.");
 
             var hashed = PasswordHelper.HashPassword(model.Password);
             if (!string.Equals(hashed, user.PasswordHash, StringComparison.Ordinal))
-                throw new AuthenticationException("Invalid email or password.");
+                throw new ArgumentException("Invalid email or password.");
+
+            user.LastLoginAt = DateTime.Now;
+            _userRepository.Update(user);
 
             return user.MapToViewModel();
         }
@@ -106,7 +101,7 @@ namespace MyNotes.Server.Services.Implementations
                 switch (true)
                 {
                     case var _ when string.IsNullOrWhiteSpace(model.Name):
-                        throw new ArgumentException("Username is required.");
+                        throw new ArgumentException("Name is required.");
                     case var _ when string.IsNullOrWhiteSpace(model.Email):
                         throw new ArgumentException("Email is required.");
                     case var _ when string.IsNullOrWhiteSpace(model.Password):
@@ -114,6 +109,11 @@ namespace MyNotes.Server.Services.Implementations
                     case var _ when string.Compare(model.Password, model.ConfirmPassword) != 0:
                         throw new ArgumentException("Password and Confirm Password do not match.");
                 }
+            }
+
+            if (!Validators.IsValidEmailAddress(model.Email))
+            {
+                throw new ArgumentException("Please enter a valid email address.");
             }
 
             var existing = await _userRepository.GetByEmailAsync(model.Email);
@@ -131,9 +131,11 @@ namespace MyNotes.Server.Services.Implementations
             {
                 Email = model.Email,
                 Name = model.Name,
-                AuthProvider = "Local",
                 PasswordHash = PasswordHelper.HashPassword(model.Password),
-                CreatedAt = DateTime.UtcNow
+                AuthProvider = "Local",
+                CreatedAt = DateTime.UtcNow,
+                LastLoginAt = DateTime.UtcNow,
+                IsGoogleUser = false,
             };
 
             _userRepository.Create(user);
