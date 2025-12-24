@@ -5,37 +5,30 @@
     <form (ngSubmit)="login()" class="login-form">
       <div class="form-group mb-3">
         <label>Email</label>
-        <input [(ngModel)]="email" name="email" type="email" required
-               class="form-control form-control-lg" placeholder="Enter your email" />
+        <input [(ngModel)]="model.email" name="email" type="email" required class="form-control form-control-lg"
+          placeholder="Enter your email" />
       </div>
 
       <div class="form-group mb-4">
         <label>Password</label>
-        <input [(ngModel)]="password" name="password" type="password" required
-               class="form-control form-control-lg" placeholder="Enter your password" />
+        <input [(ngModel)]="model.password" name="password" type="password" required
+          class="form-control form-control-lg" placeholder="Enter your password" />
       </div>
 
-      <button [disabled]="loading" type="submit"
-              class="btn btn-primary btn-lg w-100 mb-3">
+      <button [disabled]="loading" type="submit" class="btn btn-primary btn-lg w-100 mb-3">
         {{ loading ? 'Signing in...' : 'Login' }}
       </button>
 
       <div class="divider text-center my-3">OR</div>
 
-      <div id="g_id_onload"
-           data-client_id="19935988541-uftril2pfdatkoij0o5vu56t7j5e6ttp.apps.googleusercontent.com"
-           data-context="signin"
-           data-callback="handleGoogleResponse"
-           data-auto_prompt="false">
-      </div>
+      <div *ngIf="clientId" class="googleLogin">
+        <div id="g_id_onload" [attr.data-client_id]="clientId"
+          data-context="signin" data-callback="handleGoogleResponse" data-auto_prompt="false">
+        </div>
 
-      <div class="g_id_signin"
-           data-type="standard"
-           data-shape="rectangular"
-           data-theme="outline"
-           data-text="signin_with"
-           data-size="large"
-           data-logo_alignment="center">
+        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
+          data-text="signin_with" data-size="large" data-logo_alignment="center">
+        </div>
       </div>
 
       <div *ngIf="errorMessage" class="alert alert-danger mt-3 text-center">

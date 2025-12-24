@@ -18,8 +18,11 @@ export class LoginComponent implements AfterViewInit {
   }
   loading = false;
   errorMessage = '';
+  clientId = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {
+    this.clientId = this.authService.googleClientId;
+  }
 
   ngAfterViewInit() {
     (window as any).handleGoogleResponse = (response: any) => {
@@ -39,7 +42,7 @@ export class LoginComponent implements AfterViewInit {
       const googleDiv = document.querySelector('.g_id_signin');
       if (googleDiv) {
         google.accounts.id.initialize({
-          client_id: this.authService.googleClientId,
+          client_id: this.clientId,
           callback: (response: any) => (window as any).handleGoogleResponse(response)
         });
         google.accounts.id.renderButton(googleDiv, {
