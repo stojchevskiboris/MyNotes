@@ -39,14 +39,15 @@ namespace MyNotes.Server.Common.Helpers
             }
         }
 
-        public static bool CheckPasswordStrength(string password)
+        public static void ValidatePasswordStrength(string password)
         {
-            // Minimum length requirement
-            if (password.Length < 8)
-                return false;
+            if (string.IsNullOrWhiteSpace(password))
+                throw new ArgumentException("Password is required");
 
-            // If all checks pass, the password is strong
-            return true;
+            if (password.Length < 8)
+                throw new ArgumentException("Password must be at least 8 characters");
+
+            return;
         }
 
         public static string DecryptString(string cipherText)

@@ -12,8 +12,10 @@ declare const google: any;
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements AfterViewInit {
-  email: string = '';
-  password: string = '';
+  model = {
+    email: '',
+    password: ''
+  }
   loading = false;
   errorMessage = '';
 
@@ -28,8 +30,7 @@ export class LoginComponent implements AfterViewInit {
           this.router.navigate(['/notes']);
         },
         error: (err) => {
-          console.error('Google login failed', err);
-          this.errorMessage = 'Google login failed. Please try again.';
+          this.errorMessage = AppMessages.GoogleLoginFailed;
         }
       });
     };
@@ -38,7 +39,7 @@ export class LoginComponent implements AfterViewInit {
       const googleDiv = document.querySelector('.g_id_signin');
       if (googleDiv) {
         google.accounts.id.initialize({
-          client_id: '19935988541-uftril2pfdatkoij0o5vu56t7j5e6ttp.apps.googleusercontent.com',
+          client_id: this.authService.googleClientId,
           callback: (response: any) => (window as any).handleGoogleResponse(response)
         });
         google.accounts.id.renderButton(googleDiv, {
@@ -55,7 +56,7 @@ export class LoginComponent implements AfterViewInit {
 
   login() {
     this.loading = true;
-    this.authService.login(this.email, this.password).subscribe({
+    this.authService.login(this.model).subscribe({
       next: (res) => {
         localStorage.setItem('token', res.token);
         this.router.navigate(['/notes']);

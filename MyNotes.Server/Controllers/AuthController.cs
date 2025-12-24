@@ -19,7 +19,7 @@ namespace MyNotes.Server.Controllers
         }
 
         [HttpPost("GoogleLogin")]
-        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleUserLoginModel request)
         {
             var payload = await _jwtService.ValidateGoogleRequest(request);
             if (payload == null)
@@ -33,7 +33,7 @@ namespace MyNotes.Server.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest model)
+        public async Task<IActionResult> Login([FromBody] UserLoginModel model)
         {
             UserViewModel user;
             try
@@ -54,7 +54,7 @@ namespace MyNotes.Server.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest model)
+        public async Task<IActionResult> Register([FromBody] UserRegisterModel model)
         {
             UserViewModel user;
             try
@@ -65,9 +65,9 @@ namespace MyNotes.Server.Controllers
             {
                 return BadRequest(authEx.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, "An error occurred while processing your request.");
+                return StatusCode(500, ApplicationMessages.UnexpectedError);
             }
 
             var result = _jwtService.GenerateTokenModel(user);

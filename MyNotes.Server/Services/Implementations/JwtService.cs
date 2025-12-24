@@ -55,7 +55,7 @@ namespace MyNotes.Server.Services.Implementations
             return resultModel;
         }
 
-        public async Task<Payload> ValidateGoogleRequest(GoogleLoginRequest request)
+        public async Task<Payload> ValidateGoogleRequest(GoogleUserLoginModel request)
         {
             return await ValidateAsync(request.IdToken,
                 new ValidationSettings

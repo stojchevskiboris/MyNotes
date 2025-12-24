@@ -8,7 +8,8 @@ export const AppMessages = {
     NoDataAvailable: 'No data available to display.',
     SessionExpired: 'Your session has expired. Please log in again.',
     ActionCompleted: 'The action has been completed successfully.',
-    NetworkError: 'A network error occurred. Please check your connection.'
+    NetworkError: 'A network error occurred. Please check your connection.',
+    GoogleLoginFailed: 'Google login failed. Please try again.'
   } as const;
   
   export type AppMessageKey = keyof typeof AppMessages;

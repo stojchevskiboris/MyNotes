@@ -9,7 +9,7 @@ namespace MyNotes.Server.Services.Interfaces
         Task<UserViewModel> CreateOrFindGoogleUser(Payload payload);
         Task<UserViewModel> GetByEmailAsync(string email);
         Task<UserViewModel> GetUserById(int id);
-        Task<UserViewModel> Login(LoginRequest model);
-        Task<UserViewModel> Register(RegisterRequest model);
+        Task<UserViewModel> Login(UserLoginModel model);
+        Task<UserViewModel> Register(UserRegisterModel model);
     }
 }

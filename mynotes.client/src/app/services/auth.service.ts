@@ -11,7 +11,8 @@ export class AuthService {
   private loginEndpoint = `/Auth/Login`;
   private registerEndpoint = `/Auth/Register`;
   private googleLoginEndpoint = `/Auth/GoogleLogin`;
-  
+
+  googleClientId = '19935988541-uftril2pfdatkoij0o5vu56t7j5e6ttp.apps.googleusercontent.com';
   currentUser: string = '';
   token: string = '';
   userId: string = '';
@@ -21,8 +22,8 @@ export class AuthService {
     private toastr: ToastrService
   ) {}
 
-  login(email: string, password: string): Observable<any> {
-    return this.dataService.post<any>(this.loginEndpoint, { email, password })
+  login(model: any): Observable<any> {
+    return this.dataService.post<any>(this.loginEndpoint, model)
       .pipe(
         tap({
           next: (response) => {
@@ -66,6 +67,10 @@ export class AuthService {
           }
         })
       );
+  }
+
+  get googleClientID(): string {
+    return this.googleClientId;
   }
 
   isLoggedIn(): boolean {

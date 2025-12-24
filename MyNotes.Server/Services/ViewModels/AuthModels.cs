@@ -1,17 +1,17 @@
 ﻿namespace MyNotes.Server.Services.ViewModels
 {
-    public class GoogleLoginRequest
+    public class GoogleUserLoginModel
     {
         public string IdToken { get; set; } = "";
     }
 
-    public class LoginRequest
+    public class UserLoginModel
     {
         public string Email { get; set; } = "";
         public string Password { get; set; } = "";
     }
 
-    public class RegisterRequest
+    public class UserRegisterModel
     {
         public string Name { get; set; } = "";
         public string Email { get; set; } = "";

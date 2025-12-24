@@ -70,7 +70,7 @@ namespace MyNotes.Server.Services.Implementations
             return user.MapToViewModel();
         }
 
-        public async Task<UserViewModel> Login(LoginRequest model)
+        public async Task<UserViewModel> Login(UserLoginModel model)
         {
             if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
             {
@@ -94,38 +94,28 @@ namespace MyNotes.Server.Services.Implementations
             return user.MapToViewModel();
         }
 
-        public async Task<UserViewModel> Register(RegisterRequest model)
+        public async Task<UserViewModel> Register(UserRegisterModel model)
         {
-            if (string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password) || string.IsNullOrWhiteSpace(model.Name))
-            {
-                switch (true)
-                {
-                    case var _ when string.IsNullOrWhiteSpace(model.Name):
-                        throw new ArgumentException("Name is required.");
-                    case var _ when string.IsNullOrWhiteSpace(model.Email):
-                        throw new ArgumentException("Email is required.");
-                    case var _ when string.IsNullOrWhiteSpace(model.Password):
-                        throw new ArgumentException("Password is required.");
-                    case var _ when string.Compare(model.Password, model.ConfirmPassword) != 0:
-                        throw new ArgumentException("Password and Confirm Password do not match.");
-                }
-            }
+            if (string.IsNullOrWhiteSpace(model.Name))
+                throw new ArgumentException("Name is required.");
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+                throw new ArgumentException("Email is required.");
+
+            if (string.IsNullOrWhiteSpace(model.Password))
+                throw new ArgumentException("Password is required.");
+
+            if (model.Password != model.ConfirmPassword)
+                throw new ArgumentException("Password and Confirm Password do not match.");
 
             if (!Validators.IsValidEmailAddress(model.Email))
-            {
                 throw new ArgumentException("Please enter a valid email address.");
-            }
 
             var existing = await _userRepository.GetByEmailAsync(model.Email);
             if (existing != null)
-            {
                 throw new ArgumentException("A user with this email already exists.");
-            }
 
-            if (!PasswordHelper.CheckPasswordStrength(model.Password))
-            {
-                throw new ArgumentException("Password does not meet strength requirements.");
-            }
+            PasswordHelper.ValidatePasswordStrength(model.Password);
 
             var user = new User
             {
