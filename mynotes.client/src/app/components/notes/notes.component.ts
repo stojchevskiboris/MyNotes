@@ -14,6 +14,8 @@ export class NotesComponent implements OnInit {
   userID: number = 0;
   notes: Note[] = [];
   total: number = 0;
+  searchText: string = '';
+  editingNoteId: number | null = null;
 
   constructor(
     private authService: AuthService,
@@ -38,16 +40,26 @@ export class NotesComponent implements OnInit {
     });
   }
 
+  get filteredNotes() {
+    if (!this.searchText) return this.notes;
+    const search = this.searchText.toLowerCase();
+    return this.notes.filter(n =>
+      (n.title?.toLowerCase() ?? '').includes(search) ||
+      (n.content?.toLowerCase() ?? '').includes(search) ||
+      (n.tags?.toLowerCase() ?? '').includes(search)
+    );
+  }
+
   get pinnedNotes() {
-    return this.notes?.filter(n => n.isPinned && !n.isArchived) ?? [];
+    return this.filteredNotes?.filter(n => n.isPinned && !n.isArchived) ?? [];
   }
 
   get otherNotes() {
-    return this.notes?.filter(n => !n.isPinned && !n.isArchived) ?? [];
+    return this.filteredNotes?.filter(n => !n.isPinned && !n.isArchived) ?? [];
   }
 
   get archivedNotes() {
-    return this.notes?.filter(n => n.isArchived) ?? [];
+    return this.filteredNotes?.filter(n => n.isArchived) ?? [];
   }
   
   onDragEnded(event: CdkDragEnd, note: Note) {
@@ -75,7 +87,31 @@ export class NotesComponent implements OnInit {
   }
 
   addNote() {
-    console.log('Add note clicked');
+    const newNote: Note = {
+      id: 0,
+      title: 'New Note',
+      content: '',
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      authorId: this.userID,
+      isPinned: false,
+      isArchived: false,
+      colorTag: '#ffffff',
+      tags: '',
+      posX: 50,
+      posY: 50,
+      width: 250,
+      height: 200
+    };
+
+    this.notesService.createNote(newNote).subscribe({
+      next: (note) => {
+        this.notes.push(note);
+      },
+      error: (err) => {
+        console.error('Failed to create note', err);
+      }
+    });
   }
 
   unarchiveNote(id: number) {
@@ -87,7 +123,16 @@ export class NotesComponent implements OnInit {
   }
 
   deleteNote(id: number) {
-    console.log('Delete note', id);
+    if (confirm('Are you sure you want to delete this note?')) {
+      this.notesService.deleteNote(id).subscribe({
+        next: () => {
+          this.notes = this.notes.filter(n => n.id !== id);
+        },
+        error: (err) => {
+          console.error('Failed to delete note', err);
+        }
+      });
+    }
   }
 
   archiveNote(id: number) {
@@ -99,7 +144,18 @@ export class NotesComponent implements OnInit {
   }
 
   editNote(id: number) {
-    console.log('Edit note', id);
+    this.editingNoteId = id;
+  }
+
+  saveNote(note: Note) {
+    this.notesService.updateNote(note).subscribe({
+      next: (updatedNote) => {
+        this.editingNoteId = null;
+      },
+      error: (err) => {
+        console.error('Failed to update note', err);
+      }
+    });
   }
 
   togglePin(note: Note) {

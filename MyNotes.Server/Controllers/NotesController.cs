@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyNotes.Server.Common.Models;
@@ -16,6 +17,16 @@ namespace MyNotes.Server.Controllers
         public NotesController(INoteService noteService)
         {
             _noteService = noteService;
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return 0;
+            }
+            return userId;
         }
 
         [HttpPost("GetNotesByUserId")]
@@ -46,6 +57,12 @@ namespace MyNotes.Server.Controllers
                 return NotFound("Note not found");
             }
 
+            var currentUserId = GetCurrentUserId();
+            if (note.AuthorId != currentUserId)
+            {
+                return Unauthorized("You are not authorized to update this note");
+            }
+
             note.PosX = model.PosX;
             note.PosY = model.PosY;
             note.Width = model.Width;
@@ -61,6 +78,44 @@ namespace MyNotes.Server.Controllers
             _noteService.UpdateNote(note);
 
             return Ok(note);
+        }
+
+        [HttpPost("CreateNote")]
+        public IActionResult CreateNote([FromBody] Note model)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0)
+            {
+                return Unauthorized("User not found");
+            }
+
+            model.AuthorId = currentUserId;
+            model.CreatedAt = DateTime.UtcNow;
+            model.ModifiedAt = DateTime.UtcNow;
+
+            _noteService.AddNote(model);
+
+            return Ok(model);
+        }
+
+        [HttpPost("DeleteNote")]
+        public IActionResult DeleteNote([FromBody] RequestIdModel model)
+        {
+            var note = _noteService.GetNoteById(model.Id);
+            if (note == null)
+            {
+                return NotFound("Note not found");
+            }
+
+            var currentUserId = GetCurrentUserId();
+            if (note.AuthorId != currentUserId)
+            {
+                return Unauthorized("You are not authorized to delete this note");
+            }
+
+            _noteService.DeleteNote(model.Id);
+
+            return Ok();
         }
     }
 }
