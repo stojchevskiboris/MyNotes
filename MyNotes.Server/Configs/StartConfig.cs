@@ -30,6 +30,7 @@ namespace MyNotes.Server.Configs
         {
             // --- Repository Registration ---
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
         }
 
         public static void ConfigureServices(this IServiceCollection services)
@@ -37,6 +38,7 @@ namespace MyNotes.Server.Configs
             // --- Service Registration ---
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<INoteService, NoteService>();
 
             //services.AddHttpClient<IUserService, UserService>();
             services.AddHttpContextAccessor();

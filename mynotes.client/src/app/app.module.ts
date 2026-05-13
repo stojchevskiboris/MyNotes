@@ -10,6 +10,7 @@ import { provideToastr, ToastrModule } from 'ngx-toastr';
 import { RegisterComponent } from './components/register/register.component';
 import { NotesComponent } from './components/notes/notes.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    DragDropModule,
     ToastrModule.forRoot(),
   ],
   providers: [

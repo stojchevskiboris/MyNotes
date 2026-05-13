@@ -1,5 +1,104 @@
+.notes-workspace {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    background-image: radial-gradient(#dee2e6 1px, transparent 1px);
+    background-size: 30px 30px;
+    position: relative;
+    overflow: auto;
+}
+
+.notes-container {
+    position: relative;
+    width: 100%;
+    height: 80vh; /* Adjust as needed */
+}
+
+.note-wrapper {
+    position: absolute;
+    cursor: move;
+}
+
 .note-card {
-    border-radius: 12px;
-    color: #212529;
-  }
-  
+    border-radius: 15px;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.note-card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+.note-card .card-body {
+    padding: 1.25rem;
+}
+
+.note-card .card-title {
+    color: #343a40;
+    margin-bottom: 0.75rem;
+}
+
+.note-card .card-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: #adb5bd;
+    transition: color 0.2s;
+}
+
+.btn-icon:hover {
+    color: #6c757d;
+}
+
+.btn-icon.pinned {
+    color: #ffc107;
+}
+
+.resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 15px;
+    height: 15px;
+    cursor: nwse-resize;
+    background: linear-gradient(135deg, transparent 50%, #dee2e6 50%);
+    border-bottom-right-radius: 15px;
+}
+
+.note-wrapper.cdk-drag-placeholder {
+    opacity: 0;
+}
+
+.note-wrapper.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.workspace-header h1 {
+    letter-spacing: -1px;
+}
+
+/* Responsiveness fallback: on small screens, maybe consider a grid?
+   But for now, keeping it as a free-form workspace as requested. */
+@media (max-width: 768px) {
+    .note-wrapper {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        margin-bottom: 1rem;
+        transform: none !important;
+    }
+    .notes-container {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        height: auto;
+    }
+    .resize-handle {
+        display: none;
+    }
+}
