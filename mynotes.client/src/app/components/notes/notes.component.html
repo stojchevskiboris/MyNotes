@@ -43,7 +43,11 @@
                         </ng-container>
                         <ng-template #editMode>
                             <input type="text" class="form-control form-control-sm mb-2 fw-bold" [(ngModel)]="note.title" placeholder="Title">
-                            <textarea class="form-control form-control-sm note-textarea" [(ngModel)]="note.content" placeholder="Content"></textarea>
+                            <textarea class="form-control form-control-sm note-textarea mb-2" [(ngModel)]="note.content" placeholder="Content"></textarea>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="text" class="form-control form-control-sm" [(ngModel)]="note.tags" placeholder="Tags (comma separated)">
+                                <input type="color" class="form-control form-control-color form-control-sm border-0" [(ngModel)]="note.colorTag" title="Choose color">
+                            </div>
                         </ng-template>
                     </div>
 
