@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyNotes.Server.Common.Middleware;
@@ -29,13 +28,8 @@ namespace MyNotes.Server.Controllers
                     return userIdFromContext;
                 }
             }
-
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-            {
-                return 0;
-            }
-            return userId;
+            
+            return 0;
         }
 
         [HttpPost("GetNotesByUserId")]
@@ -52,7 +46,7 @@ namespace MyNotes.Server.Controllers
                 return Unauthorized("You are not authorized to access these notes");
             }
 
-            var userNotes = await _noteService.GetNotesByUserIdAsync(currentUserId);
+            var userNotes = await _noteService.GetNotesByUserIdAsync(model.Id);
 
             var result = new
             {
