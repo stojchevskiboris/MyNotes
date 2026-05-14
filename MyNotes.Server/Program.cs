@@ -95,8 +95,8 @@ app.UseDefaultFiles();
 app.UseSerilogRequestLogging();
 app.UseCors("AllowAngularApp");
 app.UseAuthentication();
-app.UseMiddleware<UserContextMiddleware>();
 app.UseAuthorization();
+app.UseMiddleware<UserContextMiddleware>();
 app.MapControllers();
 app.MapFallbackToFile("/index.html");
 

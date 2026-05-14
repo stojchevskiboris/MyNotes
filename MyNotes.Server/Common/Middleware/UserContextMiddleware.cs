@@ -17,21 +17,19 @@ namespace MyNotes.Server.Common.Middleware
         {
             if (context.User?.Identity?.IsAuthenticated == true)
             {
-                var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId) && TryStoreUserId(context, userId))
-                {
-                    await _next(context);
-                    return;
-                }
+                var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                var emailClaim = context.User.FindFirst(ClaimTypes.Email);
-                if (!string.IsNullOrWhiteSpace(emailClaim?.Value))
+                if (int.TryParse(userIdClaim, out int userId))
                 {
-                    var user = await userRepository.GetByEmailAsync(emailClaim.Value);
-                    if (user != null && TryStoreUserId(context, user.Id))
+                    context.Items[UserIdContextKey] = userId;
+                }
+                else
+                {
+                    var email = context.User.FindFirst(ClaimTypes.Email)?.Value;
+                    if (!string.IsNullOrEmpty(email))
                     {
-                        await _next(context);
-                        return;
+                        var user = await userRepository.GetByEmailAsync(email);
+                        if (user != null) context.Items[UserIdContextKey] = user.Id;
                     }
                 }
             }
