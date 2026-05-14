@@ -120,6 +120,10 @@
 }
 
 @media (max-width: 768px) {
+    .mobile-sorting-btns {
+        display: flex !important;
+        flex-direction: column;
+    }
     .note-wrapper {
         position: relative !important;
         width: 100% !important;

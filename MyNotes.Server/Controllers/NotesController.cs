@@ -82,6 +82,7 @@ namespace MyNotes.Server.Controllers
             note.IsArchived = model.IsArchived;
             note.ColorTag = model.ColorTag;
             note.Tags = model.Tags;
+            note.SortOrder = model.SortOrder;
             note.ModifiedAt = DateTime.UtcNow;
 
             _noteService.UpdateNote(note);
@@ -127,7 +128,8 @@ namespace MyNotes.Server.Controllers
                 return Unauthorized("You are not authorized to delete this note");
             }
 
-            _noteService.DeleteNote(model.Id);
+            note.IsDeleted = true;
+            _noteService.UpdateNote(note);
 
             return Ok();
         }

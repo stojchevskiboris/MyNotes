@@ -3,6 +3,7 @@ import { NotesService } from '../../services/notes.service';
 import { AuthService } from '../../services/auth.service';
 import { Note } from '../../models/note.model';
 import { CdkDragEnd } from '@angular/cdk/drag-drop';
+import { HostListener, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-notes',
@@ -17,7 +18,7 @@ export class NotesComponent implements OnInit {
   searchText: string = '';
   editingNoteId: number | null = null;
 
-  constructor(
+  constructor(private eRef: ElementRef,
     private authService: AuthService,
     private notesService: NotesService
   ) {
@@ -61,11 +62,12 @@ export class NotesComponent implements OnInit {
   get archivedNotes() {
     return this.filteredNotes?.filter(n => n.isArchived) ?? [];
   }
-  
+
   onDragEnded(event: CdkDragEnd, note: Note) {
     const transform = event.source.getFreeDragPosition();
-    note.posX = transform.x;
-    note.posY = transform.y;
+    note.posX = Math.max(0, transform.x);
+    note.posY = Math.max(0, transform.y);
+    event.source.reset();
     this.updateNote(note);
   }
 
@@ -87,6 +89,17 @@ export class NotesComponent implements OnInit {
   }
 
   addNote() {
+    let posX = 50;
+    let posY = 50;
+    const activeNotes = this.notes.filter(n => !n.isArchived);
+    let isOccupied = true;
+    while (isOccupied) {
+      isOccupied = activeNotes.some(n => n.posX === posX && n.posY === posY);
+      if (isOccupied) {
+        posX += 10;
+        posY += 10;
+      }
+    }
     const newNote: Note = {
       id: 0,
       title: 'New Note',
@@ -98,15 +111,18 @@ export class NotesComponent implements OnInit {
       isArchived: false,
       colorTag: '#ffffff',
       tags: '',
-      posX: 50,
-      posY: 50,
+      posX: posX,
+      posY: posY,
       width: 250,
-      height: 200
+      height: 200,
+      sortOrder: 0
     };
-
     this.notesService.createNote(newNote).subscribe({
       next: (note) => {
-        this.notes.push(note);
+        const maxSortOrder = this.notes.length > 0 ? Math.max(...this.notes.map(n => n.sortOrder ?? 0)) : 0;
+        note.sortOrder = maxSortOrder + 1;
+        this.updateNote(note);
+        this.notes.unshift(note);
       },
       error: (err) => {
         console.error('Failed to create note', err);
@@ -189,4 +205,53 @@ export class NotesComponent implements OnInit {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   }
+
+  @HostListener('document:click', ['$event'])
+  clickout(event: MouseEvent) {
+    if (this.editingNoteId !== null) {
+      const noteElements = document.querySelectorAll('.note-wrapper');
+      let insideNote = false;
+      noteElements.forEach(el => {
+        if (el.contains(event.target as Node)) {
+          insideNote = true;
+        }
+      });
+
+      if (!insideNote) {
+        const noteToSave = this.notes.find(n => n.id === this.editingNoteId);
+        if (noteToSave) {
+          this.saveNote(noteToSave);
+        }
+      }
+    }
+  }
+
+  moveUp(note: Note) {
+    const activeNotes = this.notes.filter(n => !n.isArchived).sort((a, b) => (b.sortOrder ?? 0) - (a.sortOrder ?? 0));
+    const index = activeNotes.findIndex(n => n.id === note.id);
+    if (index > 0) {
+      const prevNote = activeNotes[index - 1];
+      const tempOrder = note.sortOrder;
+      note.sortOrder = prevNote.sortOrder;
+      prevNote.sortOrder = tempOrder;
+      this.updateNote(note);
+      this.updateNote(prevNote);
+      this.notes.sort((a, b) => (b.sortOrder ?? 0) - (a.sortOrder ?? 0));
+    }
+  }
+
+  moveDown(note: Note) {
+    const activeNotes = this.notes.filter(n => !n.isArchived).sort((a, b) => (b.sortOrder ?? 0) - (a.sortOrder ?? 0));
+    const index = activeNotes.findIndex(n => n.id === note.id);
+    if (index < activeNotes.length - 1) {
+      const nextNote = activeNotes[index + 1];
+      const tempOrder = note.sortOrder;
+      note.sortOrder = nextNote.sortOrder;
+      nextNote.sortOrder = tempOrder;
+      this.updateNote(note);
+      this.updateNote(nextNote);
+      this.notes.sort((a, b) => (b.sortOrder ?? 0) - (a.sortOrder ?? 0));
+    }
+  }
+
 }
