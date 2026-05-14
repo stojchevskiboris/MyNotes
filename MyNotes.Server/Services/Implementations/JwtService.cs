@@ -28,22 +28,26 @@ namespace MyNotes.Server.Services.Implementations
                 throw new InvalidOperationException("Auth settings are not configured.");
             }
 
+            var isGoogleUser = userModel.IsGoogleUser;
             var key = new SymmetricSecurityKey(
-                System.Text.Encoding.UTF8.GetBytes(googleAuth.ClientSecret)
+                System.Text.Encoding.UTF8.GetBytes(
+                    isGoogleUser ? googleAuth.ClientSecret : localAuth.Secret
+                )
             );
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.NameIdentifier, userModel.Id.ToString()),
                 new Claim(ClaimTypes.Email, userModel.Email),
                 new Claim("name", userModel.Name ?? ""),
                 new Claim("avatar", userModel.ProfileImageUrl ?? "")
             };
 
             var token = new JwtSecurityToken(
-                issuer: userModel.IsGoogleUser ? googleAuth.Issuer : localAuth.Issuer,
-                audience: userModel.IsGoogleUser ? googleAuth.ClientId : localAuth.Audience,
+                issuer: isGoogleUser ? googleAuth.Issuer : localAuth.Issuer,
+                audience: isGoogleUser ? googleAuth.ClientId : localAuth.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: creds

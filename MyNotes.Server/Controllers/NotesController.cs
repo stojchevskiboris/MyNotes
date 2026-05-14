@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyNotes.Server.Common.Middleware;
 using MyNotes.Server.Common.Models;
 using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
@@ -21,23 +21,27 @@ namespace MyNotes.Server.Controllers
 
         private int GetCurrentUserId()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            if (HttpContext.Items.TryGetValue(UserContextMiddleware.UserIdContextKey, out var contextUserId))
             {
-                return 0;
+                if (contextUserId is int userIdFromContext)
+                {
+                    return userIdFromContext;
+                }
             }
-            return userId;
+            
+            return 0;
         }
 
         [HttpPost("GetNotesByUserId")]
         public async Task<IActionResult> GetNotesByUserId(RequestIdModel model)
         {
-            if (model.Id == 0)
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0)
             {
                 return Unauthorized("User not found");
             }
 
-            var userNotes = await _noteService.GetNotesByUserIdAsync(model.Id);
+            var userNotes = await _noteService.GetNotesByUserIdAsync(currentUserId);
 
             var result = new
             {
@@ -58,6 +62,11 @@ namespace MyNotes.Server.Controllers
             }
 
             var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0)
+            {
+                return Unauthorized("User not found");
+            }
+
             if (note.AuthorId != currentUserId)
             {
                 return Unauthorized("You are not authorized to update this note");
@@ -108,6 +117,11 @@ namespace MyNotes.Server.Controllers
             }
 
             var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0)
+            {
+                return Unauthorized("User not found");
+            }
+
             if (note.AuthorId != currentUserId)
             {
                 return Unauthorized("You are not authorized to delete this note");
