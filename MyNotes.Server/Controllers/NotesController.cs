@@ -41,12 +41,7 @@ namespace MyNotes.Server.Controllers
                 return Unauthorized("User not found");
             }
 
-            if (model.Id != currentUserId)
-            {
-                return Unauthorized("You are not authorized to access these notes");
-            }
-
-            var userNotes = await _noteService.GetNotesByUserIdAsync(model.Id);
+            var userNotes = await _noteService.GetNotesByUserIdAsync(currentUserId);
 
             var result = new
             {
