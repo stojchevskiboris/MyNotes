@@ -28,11 +28,6 @@ namespace MyNotes.Server.Controllers
                 {
                     return userIdFromContext;
                 }
-
-                if (contextUserId is string userIdString && int.TryParse(userIdString, out int parsedUserId))
-                {
-                    return parsedUserId;
-                }
             }
 
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -52,7 +47,7 @@ namespace MyNotes.Server.Controllers
                 return Unauthorized("User not found");
             }
 
-            if (model.Id != 0 && model.Id != currentUserId)
+            if (model.Id != currentUserId)
             {
                 return Unauthorized("You are not authorized to access these notes");
             }
