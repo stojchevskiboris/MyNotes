@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyNotes.Server.Common.Middleware;
 using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
 using MyNotes.Server.Services.ViewModels;
@@ -28,6 +29,7 @@ namespace MyNotes.Server.Controllers
             }
 
             var user = await _userService.CreateOrFindGoogleUser(payload);
+            AttachUserIdToContext(user.Id);
             var result = _jwtService.GenerateTokenModel(user);
             return Ok(result);
         }
@@ -47,8 +49,9 @@ namespace MyNotes.Server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, ApplicationMessages.UnexpectedError);
-            }            
+            }
 
+            AttachUserIdToContext(user.Id);
             var result = _jwtService.GenerateTokenModel(user);
             return Ok(result);
         }
@@ -70,8 +73,17 @@ namespace MyNotes.Server.Controllers
                 return StatusCode(500, ApplicationMessages.UnexpectedError);
             }
 
+            AttachUserIdToContext(user.Id);
             var result = _jwtService.GenerateTokenModel(user);
             return Ok(result);
+        }
+
+        private void AttachUserIdToContext(int userId)
+        {
+            if (userId > 0)
+            {
+                HttpContext.Items[UserContextMiddleware.UserIdContextKey] = userId;
+            }
         }
     }    
 }

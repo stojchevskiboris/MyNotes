@@ -1,15 +1,21 @@
-<div class="notes-workspace py-4">
+<div class="notes-workspace">
 
-    <div class="workspace-header d-flex justify-content-between align-items-center mb-4 px-4">
-      <h1 class="m-0 display-5 fw-bold text-primary">My Workspace</h1>
-      <button class="btn btn-primary btn-lg shadow-sm" (click)="addNote()">
-        <i class="bi bi-plus-lg"></i> New Note
+    <div class="workspace-header d-flex justify-content-between align-items-center p-4">
+      <div class="d-flex align-items-center">
+        <h1 class="m-0 display-6 fw-bold text-primary me-4">MyNotes</h1>
+        <div class="search-bar shadow-sm rounded-pill px-3 py-1 bg-white d-flex align-items-center">
+          <i class="bi bi-search text-muted me-2"></i>
+          <input type="text" class="form-control border-0 shadow-none" placeholder="Search notes..." [(ngModel)]="searchText">
+        </div>
+      </div>
+      <button class="btn btn-primary rounded-circle btn-lg shadow add-note-btn" (click)="addNote()" title="Add New Note">
+        <i class="bi bi-plus-lg"></i>
       </button>
     </div>
   
     <div class="notes-container" #workspace>
         <!-- Use a single container for all active notes to allow free movement -->
-         <ng-container *ngFor="let note of notes">
+         <ng-container *ngFor="let note of filteredNotes">
             <div *ngIf="!note.isArchived"
                  class="note-wrapper"
                  cdkDrag
@@ -18,25 +24,52 @@
                  [style.width.px]="note.width"
                  [style.height.px]="note.height">
 
-                <div class="card note-card h-100 shadow-sm" #card [style.backgroundColor]="note.colorTag">
-                    <div class="card-header d-flex justify-content-between align-items-center border-0 bg-transparent">
-                        <span class="badge rounded-pill text-bg-light shadow-sm" *ngIf="note.tags">{{ note.tags }}</span>
-                        <div class="note-actions">
-                            <button class="btn btn-sm btn-icon" (click)="togglePin(note)" [class.pinned]="note.isPinned">
+                <div class="card note-card h-100 shadow-sm" #card [style.backgroundColor]="note.colorTag" (dblclick)="editNote(note.id)">
+                    <div class="card-header d-flex justify-content-between align-items-center border-0 bg-transparent pt-3">
+                        <div class="note-tags">
+                            <span class="badge rounded-pill text-bg-light shadow-sm" *ngIf="note.tags">{{ note.tags }}</span>
+                        </div>
+                        <div class="note-actions d-flex align-items-center">
+                            <div class="mobile-sorting-btns d-none me-2">
+                                <button class="btn btn-sm btn-icon p-0" (click)="moveUp(note); $event.stopPropagation()" title="Move Up">
+                                    <i class="bi bi-caret-up-fill"></i>
+                                </button>
+                                <button class="btn btn-sm btn-icon p-0" (click)="moveDown(note); $event.stopPropagation()" title="Move Down">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </button>
+                            </div>
+                            <button class="btn btn-sm btn-icon" (click)="togglePin(note)" [class.pinned]="note.isPinned" title="Pin Note">
                                 <i class="bi" [ngClass]="note.isPinned ? 'bi-pin-fill' : 'bi-pin'"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="card-body overflow-hidden">
-                        <h5 class="card-title fw-bold text-truncate">{{ note.title }}</h5>
-                        <p class="card-text text-muted">{{ note.content }}</p>
+
+                    <div class="card-body overflow-hidden pt-1">
+                        <ng-container *ngIf="editingNoteId !== note.id; else editMode">
+                            <h5 class="card-title fw-bold text-truncate mb-2">{{ note.title }}</h5>
+                            <p class="card-text text-muted note-content">{{ note.content }}</p>
+                        </ng-container>
+                        <ng-template #editMode>
+                            <input type="text" class="form-control form-control-sm mb-2 fw-bold" [(ngModel)]="note.title" placeholder="Title">
+                            <textarea class="form-control form-control-sm note-textarea mb-2" [(ngModel)]="note.content" placeholder="Content"></textarea>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="text" class="form-control form-control-sm" [(ngModel)]="note.tags" placeholder="Tags (comma separated)">
+                                <input type="color" class="form-control form-control-color form-control-sm border-0" [(ngModel)]="note.colorTag" title="Choose color">
+                            </div>
+                        </ng-template>
                     </div>
-                    <div class="card-footer border-0 bg-transparent d-flex justify-content-between align-items-center">
-                        <small class="text-muted">{{ note.modifiedAt | date:'shortDate' }}</small>
+
+                    <div class="card-footer border-0 bg-transparent d-flex justify-content-between align-items-center pb-3">
+                        <small class="text-muted">{{ note.modifiedAt | date:'MMM d' }}</small>
                         <div class="d-flex gap-1">
-                            <button class="btn btn-sm btn-outline-secondary border-0" (click)="editNote(note.id)"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-warning border-0" (click)="archiveNote(note.id)"><i class="bi bi-archive"></i></button>
-                            <button class="btn btn-sm btn-outline-danger border-0" (click)="deleteNote(note.id)"><i class="bi bi-trash"></i></button>
+                            <ng-container *ngIf="editingNoteId !== note.id; else saveBtn">
+                                <button class="btn btn-sm btn-light border-0 shadow-sm" (click)="editNote(note.id)" title="Edit"><i class="bi bi-pencil"></i></button>
+                            </ng-container>
+                            <ng-template #saveBtn>
+                                <button class="btn btn-sm btn-success border-0 shadow-sm" (click)="saveNote(note)" title="Save"><i class="bi bi-check-lg"></i></button>
+                            </ng-template>
+                            <button class="btn btn-sm btn-light border-0 shadow-sm" (click)="archiveNote(note.id)" title="Archive"><i class="bi bi-archive"></i></button>
+                            <button class="btn btn-sm btn-light border-0 shadow-sm text-danger" (click)="deleteNote(note.id)" title="Delete"><i class="bi bi-trash"></i></button>
                         </div>
                     </div>
 
@@ -47,12 +80,12 @@
          </ng-container>
     </div>
 
-    <!-- ARCHIVED SECTION - Separate because usually they shouldn't clutter the workspace -->
-    <div *ngIf="archivedNotes.length > 0" class="archived-section mt-5 px-4">
-      <hr>
-      <h2 class="mb-4 text-muted"><i class="bi bi-archive"></i> Archived Notes</h2>
+    <!-- ARCHIVED SECTION -->
+    <div *ngIf="archivedNotes.length > 0" class="archived-section mt-5 px-4 pb-5">
+      <hr class="mb-4">
+      <h4 class="mb-4 text-muted"><i class="bi bi-archive me-2"></i> Archived Notes</h4>
   
-      <div class="row g-3">
+      <div class="row g-4">
         <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let note of archivedNotes">
           <div class="card note-card h-100 border-0 shadow-sm bg-light" [style.backgroundColor]="note.colorTag">
             <div class="card-body">
@@ -60,7 +93,7 @@
               <p class="card-text text-muted">{{ note.content }}</p>
             </div>
             <div class="card-footer border-0 bg-transparent d-flex justify-content-between align-items-center">
-              <button class="btn btn-sm btn-success" (click)="unarchiveNote(note.id)">Restore</button>
+              <button class="btn btn-sm btn-outline-success border-0" (click)="unarchiveNote(note.id)">Restore</button>
               <button class="btn btn-sm btn-outline-danger border-0" (click)="deleteNote(note.id)"><i class="bi bi-trash"></i></button>
             </div>
           </div>
@@ -69,4 +102,3 @@
     </div>
   
   </div>
-  

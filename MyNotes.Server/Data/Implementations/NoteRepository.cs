@@ -16,7 +16,7 @@ namespace MyNotes.Server.Data.Implementations
 
         public async Task<IEnumerable<Note>> GetNotesByUserIdAsync(int userId)
         {
-            return await _context.Notes.Where(n => n.AuthorId == userId).ToListAsync();
+            return await _context.Notes.Where(n => n.AuthorId == userId && !n.IsDeleted).OrderByDescending(n => n.SortOrder).ThenByDescending(n => n.CreatedAt).ToListAsync();
         }
     }
 }

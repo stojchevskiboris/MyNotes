@@ -14,4 +14,6 @@ export interface Note {
     posY: number;
     width: number;
     height: number;
+    sortOrder: number;
+    isDeleted?: boolean;
 }
