@@ -18,25 +18,35 @@ namespace MyNotes.Server.Common.Middleware
             if (context.User?.Identity?.IsAuthenticated == true)
             {
                 var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId) && userId > 0)
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId) && TryStoreUserId(context, userId))
                 {
-                    context.Items[UserIdContextKey] = userId;
+                    await _next(context);
+                    return;
                 }
-                else
+
+                var emailClaim = context.User.FindFirst(ClaimTypes.Email);
+                if (!string.IsNullOrWhiteSpace(emailClaim?.Value))
                 {
-                    var emailClaim = context.User.FindFirst(ClaimTypes.Email);
-                    if (!string.IsNullOrWhiteSpace(emailClaim?.Value))
+                    var user = await userRepository.GetByEmailAsync(emailClaim.Value);
+                    if (user != null)
                     {
-                        var user = await userRepository.GetByEmailAsync(emailClaim.Value);
-                        if (user != null && user.Id > 0)
-                        {
-                            context.Items[UserIdContextKey] = user.Id;
-                        }
+                        TryStoreUserId(context, user.Id);
                     }
                 }
             }
 
             await _next(context);
+        }
+
+        private static bool TryStoreUserId(HttpContext context, int userId)
+        {
+            if (userId <= 0)
+            {
+                return false;
+            }
+
+            context.Items[UserIdContextKey] = userId;
+            return true;
         }
     }
 }
