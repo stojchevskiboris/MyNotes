@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using MyNotes.Server.Common;
+using MyNotes.Server.Common.Middleware;
 using MyNotes.Server.Configs;
 using MyNotes.Server.Data;
 using Serilog;
@@ -95,6 +96,7 @@ app.UseSerilogRequestLogging();
 app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<UserContextMiddleware>();
 app.MapControllers();
 app.MapFallbackToFile("/index.html");
 

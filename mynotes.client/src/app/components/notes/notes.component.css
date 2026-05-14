@@ -1,16 +1,41 @@
 .notes-workspace {
     min-height: 100vh;
-    background-color: #f8f9fa;
-    background-image: radial-gradient(#dee2e6 1px, transparent 1px);
-    background-size: 30px 30px;
+    background-color: #f0f2f5;
+    background-image: radial-gradient(#ced4da 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
     position: relative;
     overflow: auto;
+}
+
+.workspace-header {
+    background: rgba(240, 242, 245, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.search-bar {
+    width: 300px;
+}
+
+.search-bar input {
+    background: transparent;
+}
+
+.add-note-btn {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .notes-container {
     position: relative;
     width: 100%;
-    height: 80vh; /* Adjust as needed */
+    min-height: 80vh;
+    padding: 2rem;
 }
 
 .note-wrapper {
@@ -19,40 +44,51 @@
 }
 
 .note-card {
-    border-radius: 15px;
-    border: none;
-    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
 }
 
 .note-card:hover {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
 }
 
 .note-card .card-body {
-    padding: 1.25rem;
+    padding: 1rem 1.25rem;
 }
 
-.note-card .card-title {
-    color: #343a40;
-    margin-bottom: 0.75rem;
+.note-content {
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-.note-card .card-text {
-    font-size: 0.95rem;
-    line-height: 1.5;
+.note-textarea {
+    height: 100px;
+    resize: none;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+}
+
+.note-textarea:focus {
+    background: rgba(255, 255, 255, 0.8);
 }
 
 .btn-icon {
     background: transparent;
     border: none;
     color: #adb5bd;
-    transition: color 0.2s;
+    transition: all 0.2s;
 }
 
 .btn-icon:hover {
     color: #6c757d;
+    transform: scale(1.1);
 }
 
 .btn-icon.pinned {
@@ -61,13 +97,18 @@
 
 .resize-handle {
     position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 15px;
-    height: 15px;
+    right: 5px;
+    bottom: 5px;
+    width: 12px;
+    height: 12px;
     cursor: nwse-resize;
-    background: linear-gradient(135deg, transparent 50%, #dee2e6 50%);
-    border-bottom-right-radius: 15px;
+    opacity: 0.3;
+    background-image: linear-gradient(135deg, transparent 50%, #6c757d 50%);
+    transition: opacity 0.2s;
+}
+
+.note-card:hover .resize-handle {
+    opacity: 0.8;
 }
 
 .note-wrapper.cdk-drag-placeholder {
@@ -78,18 +119,12 @@
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.workspace-header h1 {
-    letter-spacing: -1px;
-}
-
-/* Responsiveness fallback: on small screens, maybe consider a grid?
-   But for now, keeping it as a free-form workspace as requested. */
 @media (max-width: 768px) {
     .note-wrapper {
         position: relative !important;
         width: 100% !important;
         height: auto !important;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         transform: none !important;
     }
     .notes-container {
@@ -100,5 +135,8 @@
     }
     .resize-handle {
         display: none;
+    }
+    .search-bar {
+        width: 180px;
     }
 }

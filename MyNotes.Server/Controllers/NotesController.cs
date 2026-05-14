@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyNotes.Server.Common.Middleware;
 using MyNotes.Server.Common.Models;
 using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
@@ -18,15 +19,29 @@ namespace MyNotes.Server.Controllers
             _noteService = noteService;
         }
 
+        private int GetCurrentUserId()
+        {
+            if (HttpContext.Items.TryGetValue(UserContextMiddleware.UserIdContextKey, out var contextUserId))
+            {
+                if (contextUserId is int userIdFromContext)
+                {
+                    return userIdFromContext;
+                }
+            }
+            
+            return 0;
+        }
+
         [HttpPost("GetNotesByUserId")]
         public async Task<IActionResult> GetNotesByUserId(RequestIdModel model)
         {
-            if (model.Id == 0)
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0)
             {
                 return Unauthorized("User not found");
             }
 
-            var userNotes = await _noteService.GetNotesByUserIdAsync(model.Id);
+            var userNotes = await _noteService.GetNotesByUserIdAsync(currentUserId);
 
             var result = new
             {
@@ -46,6 +61,17 @@ namespace MyNotes.Server.Controllers
                 return NotFound("Note not found");
             }
 
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0)
+            {
+                return Unauthorized("User not found");
+            }
+
+            if (note.AuthorId != currentUserId)
+            {
+                return Unauthorized("You are not authorized to update this note");
+            }
+
             note.PosX = model.PosX;
             note.PosY = model.PosY;
             note.Width = model.Width;
@@ -61,6 +87,49 @@ namespace MyNotes.Server.Controllers
             _noteService.UpdateNote(note);
 
             return Ok(note);
+        }
+
+        [HttpPost("CreateNote")]
+        public IActionResult CreateNote([FromBody] Note model)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0)
+            {
+                return Unauthorized("User not found");
+            }
+
+            model.AuthorId = currentUserId;
+            model.CreatedAt = DateTime.UtcNow;
+            model.ModifiedAt = DateTime.UtcNow;
+
+            _noteService.AddNote(model);
+
+            return Ok(model);
+        }
+
+        [HttpPost("DeleteNote")]
+        public IActionResult DeleteNote([FromBody] RequestIdModel model)
+        {
+            var note = _noteService.GetNoteById(model.Id);
+            if (note == null)
+            {
+                return NotFound("Note not found");
+            }
+
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0)
+            {
+                return Unauthorized("User not found");
+            }
+
+            if (note.AuthorId != currentUserId)
+            {
+                return Unauthorized("You are not authorized to delete this note");
+            }
+
+            _noteService.DeleteNote(model.Id);
+
+            return Ok();
         }
     }
 }
