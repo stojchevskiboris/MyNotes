@@ -8,6 +8,7 @@ export interface Note {
     authorName?: string;
     isPinned: boolean;
     colorTag: string;
+    color: string;
     tags: string;
     isArchived: boolean;
     posX: number;
@@ -15,5 +16,6 @@ export interface Note {
     width: number;
     height: number;
     sortOrder: number;
+    zIndex: number;
     isDeleted?: boolean;
 }

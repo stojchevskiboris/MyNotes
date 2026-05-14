@@ -144,3 +144,46 @@
         width: 180px;
     }
 }
+
+/* Dark Theme Styles */
+.notes-workspace.dark-theme {
+    background-color: #1a1a1a;
+    background-image: radial-gradient(#333 0.5px, transparent 0.5px);
+    color: #f0f2f5;
+}
+
+.dark-theme .workspace-header {
+    background: rgba(26, 26, 26, 0.8);
+}
+
+.dark-theme .search-bar {
+    background-color: #2d2d2d !important;
+}
+
+.dark-theme .search-bar input {
+    color: #fff;
+}
+
+.dark-theme .btn-light {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #fff;
+}
+
+.dark-theme .modal-content {
+    background-color: #2d2d2d;
+    color: #fff;
+}
+
+.dark-theme .badge.text-bg-light {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+
+.dark-theme .text-muted {
+    color: #aaa !important;
+}
+
+.dark-theme .card {
+    border-color: #444;
+}

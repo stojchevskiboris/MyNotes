@@ -1,4 +1,4 @@
-<div class="notes-workspace">
+<div class="notes-workspace" [class.dark-theme]="user?.theme === 'dark'">
 
     <div class="workspace-header d-flex justify-content-between align-items-center p-4">
       <div class="d-flex align-items-center">
@@ -8,9 +8,17 @@
           <input type="text" class="form-control border-0 shadow-none" placeholder="Search notes..." [(ngModel)]="searchText">
         </div>
       </div>
-      <button class="btn btn-primary rounded-circle btn-lg shadow add-note-btn" (click)="addNote()" title="Add New Note">
-        <i class="bi bi-plus-lg"></i>
-      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary rounded-circle btn-lg shadow add-note-btn" (click)="addNote()" title="Add New Note">
+          <i class="bi bi-plus-lg"></i>
+        </button>
+        <button class="btn btn-light rounded-circle btn-lg shadow" (click)="openSettings()" title="User Settings">
+          <i class="bi bi-person-gear"></i>
+        </button>
+        <button class="btn btn-light rounded-circle btn-lg shadow text-danger" (click)="logout()" title="Logout">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
     </div>
   
     <div class="notes-container" #workspace>
@@ -21,10 +29,12 @@
                  cdkDrag
                  [cdkDragFreeDragPosition]="{x: note.posX, y: note.posY}"
                  (cdkDragEnded)="onDragEnded($event, note)"
+                 (mousedown)="onNoteMouseDown(note)"
                  [style.width.px]="note.width"
-                 [style.height.px]="note.height">
+                 [style.height.px]="note.height"
+                 [style.zIndex]="note.zIndex">
 
-                <div class="card note-card h-100 shadow-sm" #card [style.backgroundColor]="note.colorTag" (dblclick)="editNote(note.id)">
+                <div class="card note-card h-100 shadow-sm" #card [style.backgroundColor]="note.color" (dblclick)="editNote(note.id)">
                     <div class="card-header d-flex justify-content-between align-items-center border-0 bg-transparent pt-3">
                         <div class="note-tags">
                             <span class="badge rounded-pill text-bg-light shadow-sm" *ngIf="note.tags">{{ note.tags }}</span>
@@ -54,7 +64,7 @@
                             <textarea class="form-control form-control-sm note-textarea mb-2" [(ngModel)]="note.content" placeholder="Content"></textarea>
                             <div class="d-flex gap-2 align-items-center">
                                 <input type="text" class="form-control form-control-sm" [(ngModel)]="note.tags" placeholder="Tags (comma separated)">
-                                <input type="color" class="form-control form-control-color form-control-sm border-0" [(ngModel)]="note.colorTag" title="Choose color">
+                                <input type="color" class="form-control form-control-color form-control-sm border-0" [(ngModel)]="note.color" title="Choose color">
                             </div>
                         </ng-template>
                     </div>
@@ -69,7 +79,7 @@
                                 <button class="btn btn-sm btn-success border-0 shadow-sm" (click)="saveNote(note)" title="Save"><i class="bi bi-check-lg"></i></button>
                             </ng-template>
                             <button class="btn btn-sm btn-light border-0 shadow-sm" (click)="archiveNote(note.id)" title="Archive"><i class="bi bi-archive"></i></button>
-                            <button class="btn btn-sm btn-light border-0 shadow-sm text-danger" (click)="deleteNote(note.id)" title="Delete"><i class="bi bi-trash"></i></button>
+                            <button class="btn btn-sm btn-light border-0 shadow-sm text-danger" (click)="confirmDeleteNote(note.id)" title="Delete"><i class="bi bi-trash"></i></button>
                         </div>
                     </div>
 
@@ -87,14 +97,14 @@
   
       <div class="row g-4">
         <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let note of archivedNotes">
-          <div class="card note-card h-100 border-0 shadow-sm bg-light" [style.backgroundColor]="note.colorTag">
+          <div class="card note-card h-100 border-0 shadow-sm bg-light" [style.backgroundColor]="note.color">
             <div class="card-body">
               <h5 class="card-title fw-bold">{{ note.title }}</h5>
               <p class="card-text text-muted">{{ note.content }}</p>
             </div>
             <div class="card-footer border-0 bg-transparent d-flex justify-content-between align-items-center">
               <button class="btn btn-sm btn-outline-success border-0" (click)="unarchiveNote(note.id)">Restore</button>
-              <button class="btn btn-sm btn-outline-danger border-0" (click)="deleteNote(note.id)"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-sm btn-outline-danger border-0" (click)="confirmDeleteNote(note.id)"><i class="bi bi-trash"></i></button>
             </div>
           </div>
         </div>
@@ -102,3 +112,58 @@
     </div>
   
   </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content shadow-lg border-0">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold">Delete Note</h5>
+          <button type="button" class="btn-close" (click)="showDeleteModal = false"></button>
+        </div>
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-exclamation-triangle text-warning display-1 mb-3"></i>
+          <p class="lead">Are you sure you want to delete this note? This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center pb-4">
+          <button type="button" class="btn btn-light px-4" (click)="showDeleteModal = false">Cancel</button>
+          <button type="button" class="btn btn-danger px-4" (click)="deleteNote()">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="showDeleteModal"></div>
+
+  <!-- User Settings Modal -->
+  <div class="modal fade" [class.show]="showSettingsModal" [style.display]="showSettingsModal ? 'block' : 'none'" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content shadow-lg border-0" *ngIf="settingsUser">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold">User Settings</h5>
+          <button type="button" class="btn-close" (click)="showSettingsModal = false"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Name</label>
+            <input type="text" class="form-control" [(ngModel)]="settingsUser.name">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="settingsUser.email" [disabled]="settingsUser.isGoogleUser">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Theme</label>
+            <select class="form-select" [(ngModel)]="settingsUser.theme">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light" (click)="showSettingsModal = false">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="saveSettings()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="showSettingsModal"></div>

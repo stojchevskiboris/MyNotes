@@ -20,6 +20,7 @@ namespace MyNotes.Server.Services.Mappers
                 CreatedAt = user.CreatedAt,
                 LastLoginAt = user.LastLoginAt,
                 IsGoogleUser = user.IsGoogleUser,
+                Theme = user.Theme,
             };
 
             return model;

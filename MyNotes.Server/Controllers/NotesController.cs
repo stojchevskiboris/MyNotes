@@ -83,6 +83,8 @@ namespace MyNotes.Server.Controllers
             note.ColorTag = model.ColorTag;
             note.Tags = model.Tags;
             note.SortOrder = model.SortOrder;
+            note.Color = model.Color;
+            note.ZIndex = model.ZIndex;
             note.ModifiedAt = DateTime.UtcNow;
 
             _noteService.UpdateNote(note);

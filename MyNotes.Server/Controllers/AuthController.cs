@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyNotes.Server.Common.Middleware;
 using MyNotes.Server.Domain.Models;
 using MyNotes.Server.Services.Interfaces;
@@ -17,6 +18,19 @@ namespace MyNotes.Server.Controllers
         {
             _userService = userService;
             _jwtService = jwtService;
+        }
+
+        private int GetCurrentUserId()
+        {
+            if (HttpContext.Items.TryGetValue(UserContextMiddleware.UserIdContextKey, out var contextUserId))
+            {
+                if (contextUserId is int userIdFromContext)
+                {
+                    return userIdFromContext;
+                }
+            }
+
+            return 0;
         }
 
         [HttpPost("GoogleLogin")]
@@ -78,6 +92,19 @@ namespace MyNotes.Server.Controllers
             return Ok(result);
         }
 
+        [Authorize]
+        [HttpPost("UpdateUser")]
+        public async Task<IActionResult> UpdateUser([FromBody] UserViewModel model)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == 0 || currentUserId != model.Id)
+            {
+                return Unauthorized();
+            }
+            var user = await _userService.UpdateUser(model);
+            return Ok(user);
+        }
+
         private void AttachUserIdToContext(int userId)
         {
             if (userId > 0)
@@ -87,4 +114,3 @@ namespace MyNotes.Server.Controllers
         }
     }    
 }
-
