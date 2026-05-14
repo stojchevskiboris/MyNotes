@@ -28,9 +28,10 @@ namespace MyNotes.Server.Common.Middleware
                 if (!string.IsNullOrWhiteSpace(emailClaim?.Value))
                 {
                     var user = await userRepository.GetByEmailAsync(emailClaim.Value);
-                    if (user != null)
+                    if (user != null && TryStoreUserId(context, user.Id))
                     {
-                        TryStoreUserId(context, user.Id);
+                        await _next(context);
+                        return;
                     }
                 }
             }
