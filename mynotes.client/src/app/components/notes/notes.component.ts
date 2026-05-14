@@ -62,11 +62,12 @@ export class NotesComponent implements OnInit {
   get archivedNotes() {
     return this.filteredNotes?.filter(n => n.isArchived) ?? [];
   }
-  
+
   onDragEnded(event: CdkDragEnd, note: Note) {
     const transform = event.source.getFreeDragPosition();
     note.posX = Math.max(0, transform.x);
     note.posY = Math.max(0, transform.y);
+    event.source.reset();
     this.updateNote(note);
   }
 
