@@ -251,7 +251,7 @@ export class NotesComponent implements OnInit {
     document.addEventListener('mouseup', onMouseUp);
   }
 
-  @HostListener('document:click', [''])
+  @HostListener('document:click', ['$event'])
   clickout(event: MouseEvent) {
     if (this.editingNoteId !== null) {
       const noteElements = document.querySelectorAll('.note-wrapper');
