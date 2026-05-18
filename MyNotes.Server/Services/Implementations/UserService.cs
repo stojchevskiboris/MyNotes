@@ -133,6 +133,16 @@ namespace MyNotes.Server.Services.Implementations
             return user.MapToViewModel();
         }
 
+        public async Task<UserViewModel> UpdateUser(UserViewModel model)
+        {
+            var user = await GetUserDomainById(model.Id);
+            user.Name = model.Name;
+            user.Email = model.Email;
+            user.Theme = model.Theme;
+            _userRepository.Update(user);
+            return user.MapToViewModel();
+        }
+
         private async Task<User> GetUserDomainById(int id)
         {
             var user = _userRepository.Get(id);

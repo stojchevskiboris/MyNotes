@@ -11,5 +11,6 @@ namespace MyNotes.Server.Services.Interfaces
         Task<UserViewModel> GetUserById(int id);
         Task<UserViewModel> Login(UserLoginModel model);
         Task<UserViewModel> Register(UserRegisterModel model);
+        Task<UserViewModel> UpdateUser(UserViewModel model);
     }
 }

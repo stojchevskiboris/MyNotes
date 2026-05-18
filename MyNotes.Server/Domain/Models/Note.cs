@@ -30,6 +30,8 @@ namespace MyNotes.Server.Domain.Models
         public double Height { get; set; } = 200;
 
         public int SortOrder { get; set; }
+        public string Color { get; set; } = "#ffffff";
+        public int ZIndex { get; set; } = 0;
         public bool IsDeleted { get; set; }
 
         public string Tags { get; set; } = string.Empty; // Simplified for demo/initial implementation

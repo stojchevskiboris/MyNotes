@@ -13,16 +13,25 @@ import { HostListener, ElementRef } from '@angular/core';
 export class NotesComponent implements OnInit {
 
   userID: number = 0;
+  user: any = null;
   notes: Note[] = [];
   total: number = 0;
   searchText: string = '';
   editingNoteId: number | null = null;
+  maxZIndex: number = 0;
+
+  // Modals state
+  showDeleteModal: boolean = false;
+  noteToDeleteId: number | null = null;
+  showSettingsModal: boolean = false;
+  settingsUser: any = null;
 
   constructor(private eRef: ElementRef,
     private authService: AuthService,
     private notesService: NotesService
   ) {
     this.userID = this.authService.getUserId();
+    this.user = this.authService.getUser();
   }
 
   ngOnInit() {
@@ -34,6 +43,9 @@ export class NotesComponent implements OnInit {
       next: (response) => {
         this.notes = response.notes;
         this.total = response.total;
+        if (this.notes.length > 0) {
+          this.maxZIndex = Math.max(...this.notes.map(n => n.zIndex ?? 0));
+        }
       },
       error: (error) => {
         console.error('Error loading notes:', error);
@@ -100,6 +112,9 @@ export class NotesComponent implements OnInit {
         posY += 10;
       }
     }
+
+    this.maxZIndex++;
+
     const newNote: Note = {
       id: 0,
       title: 'New Note',
@@ -110,12 +125,14 @@ export class NotesComponent implements OnInit {
       isPinned: false,
       isArchived: false,
       colorTag: '#ffffff',
+      color: '#ffffff',
       tags: '',
       posX: posX,
       posY: posY,
       width: 250,
       height: 200,
-      sortOrder: 0
+      sortOrder: 0,
+      zIndex: this.maxZIndex
     };
     this.notesService.createNote(newNote).subscribe({
       next: (note) => {
@@ -138,11 +155,18 @@ export class NotesComponent implements OnInit {
     }
   }
 
-  deleteNote(id: number) {
-    if (confirm('Are you sure you want to delete this note?')) {
-      this.notesService.deleteNote(id).subscribe({
+  confirmDeleteNote(id: number) {
+    this.noteToDeleteId = id;
+    this.showDeleteModal = true;
+  }
+
+  deleteNote() {
+    if (this.noteToDeleteId) {
+      this.notesService.deleteNote(this.noteToDeleteId).subscribe({
         next: () => {
-          this.notes = this.notes.filter(n => n.id !== id);
+          this.notes = this.notes.filter(n => n.id !== this.noteToDeleteId);
+          this.showDeleteModal = false;
+          this.noteToDeleteId = null;
         },
         error: (err) => {
           console.error('Failed to delete note', err);
@@ -161,6 +185,10 @@ export class NotesComponent implements OnInit {
 
   editNote(id: number) {
     this.editingNoteId = id;
+    const note = this.notes.find(n => n.id === id);
+    if (note) {
+      this.bringToFront(note);
+    }
   }
 
   saveNote(note: Note) {
@@ -179,9 +207,26 @@ export class NotesComponent implements OnInit {
     this.updateNote(note);
   }
 
+  onNoteMouseDown(note: Note) {
+    this.bringToFront(note);
+  }
+
+  bringToFront(note: Note) {
+    if (note.zIndex < this.maxZIndex) {
+      this.maxZIndex++;
+      note.zIndex = this.maxZIndex;
+      this.updateNote(note);
+    } else if (this.maxZIndex === 0) {
+      this.maxZIndex = 1;
+      note.zIndex = 1;
+      this.updateNote(note);
+    }
+  }
+
   onResizeStart(event: MouseEvent, note: Note, cardElement: HTMLElement) {
     event.preventDefault();
     event.stopPropagation();
+    this.bringToFront(note);
 
     const startX = event.clientX;
     const startY = event.clientY;
@@ -252,6 +297,24 @@ export class NotesComponent implements OnInit {
       this.updateNote(nextNote);
       this.notes.sort((a, b) => (b.sortOrder ?? 0) - (a.sortOrder ?? 0));
     }
+  }
+
+  logout() {
+    this.authService.logout();
+  }
+
+  openSettings() {
+    this.settingsUser = { ...this.user };
+    this.showSettingsModal = true;
+  }
+
+  saveSettings() {
+    this.authService.updateUser(this.settingsUser).subscribe({
+      next: (updatedUser) => {
+        this.user = updatedUser;
+        this.showSettingsModal = false;
+      }
+    });
   }
 
 }

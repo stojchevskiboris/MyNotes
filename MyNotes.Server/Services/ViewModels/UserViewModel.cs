@@ -15,5 +15,6 @@
         public DateTime? LastLoginAt { get; set; }
 
         public bool IsGoogleUser { get; set; } = false;
+        public string Theme { get; set; } = "light";
     }
 }

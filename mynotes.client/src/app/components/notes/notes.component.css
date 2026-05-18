@@ -45,14 +45,14 @@
 
 .note-card {
     border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     transition: box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
 }
 
 .note-card:hover {
-    box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important;
 }
 
 .note-card .card-body {
@@ -62,17 +62,13 @@
 .note-content {
     font-size: 0.9rem;
     white-space: pre-wrap;
-    display: -webkit-box;
-    -webkit-line-clamp: 6;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .note-textarea {
     height: 100px;
     resize: none;
     background: rgba(255, 255, 255, 0.5);
-    border: none;
 }
 
 .note-textarea:focus {
@@ -124,6 +120,7 @@
         display: flex !important;
         flex-direction: column;
     }
+
     .note-wrapper {
         position: relative !important;
         width: 100% !important;
@@ -131,16 +128,66 @@
         margin-bottom: 1.5rem;
         transform: none !important;
     }
+
     .notes-container {
         display: flex;
         flex-direction: column;
         padding: 1rem;
         height: auto;
     }
+
     .resize-handle {
         display: none;
     }
+
     .search-bar {
         width: 180px;
     }
+}
+
+/* Dark Theme Styles */
+.notes-workspace.dark-theme {
+    background-color: #1a1a1a;
+    background-image: radial-gradient(#333 0.5px, transparent 0.5px);
+    color: #f0f2f5;
+}
+
+.dark-theme .workspace-header {
+    background: rgba(26, 26, 26, 0.8);
+}
+
+.dark-theme .search-bar {
+    background-color: #2d2d2d !important;
+}
+
+.dark-theme .search-bar input {
+    color: #fff;
+}
+
+.dark-theme .search-bar input::placeholder {
+    color: #fff;
+}
+
+.dark-theme .btn-light {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #fff;
+}
+
+.dark-theme .modal-content {
+    background-color: #2d2d2d;
+    color: #fff;
+}
+
+.dark-theme .badge.text-bg-light {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+
+.dark-theme .text-muted {
+    color: #aaa !important;
+}
+
+.dark-theme .card {
+    border-color: #444;
 }
